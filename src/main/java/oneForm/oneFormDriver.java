@@ -2,21 +2,14 @@
 
 package oneForm;
 
-import com.google.gson.Gson;
+import oneForm.OneFormEmail_V2.RequestManager;
 import oneForm.Runnables.ServiceRequest;
 import org.springframework.web.bind.annotation.*;
 import td.api.*;
 import td.api.HttpCommunication.ResourceType;
 import td.api.Logging.*;
-import td.api.MultiThreading.TDThreadManager;
-
-import java.util.logging.Level;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.jar.Attributes;
 
 import static java.lang.Integer.parseInt;
 
@@ -34,7 +27,7 @@ public class oneFormDriver {
     @Resource(name = "teamDynamix")
     private TeamDynamix Td;
 
-    private static final ThreadManager threadManager = new ThreadManager();
+    private static final RequestManager threadManager = new RequestManager();
     History history = new History(ResourceType.NONE, "Master History");
 
     /**

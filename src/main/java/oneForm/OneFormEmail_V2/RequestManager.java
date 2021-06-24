@@ -1,6 +1,5 @@
-package oneForm;
+package oneForm.OneFormEmail_V2;
 
-import oneForm.OneFormEmail_V2.RequestManager;
 import oneForm.Runnables.ServiceRequest;
 import td.api.Logging.History;
 import td.api.Logging.LoggingEvent;
@@ -9,11 +8,11 @@ import td.api.MultiThreading.TDThreadManager;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 
-public class ThreadManager extends TDThreadManager {
+public class RequestManager extends TDThreadManager {
     Semaphore countTicketSemaphore = new Semaphore(1);
     Semaphore andonTicketSemaphore = new Semaphore(1);
 
-    public ThreadManager() {
+    public RequestManager() {
         super(5, 10, 1, 50);
     }
 

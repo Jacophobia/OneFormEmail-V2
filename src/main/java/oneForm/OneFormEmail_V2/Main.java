@@ -1,4 +1,4 @@
-package oneForm;
+package oneForm.OneFormEmail_V2;
 
 
 import org.springframework.boot.CommandLineRunner;
@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import td.api.*;
 import td.api.HttpCommunication.ResourceType;
 import td.api.Logging.History;
+import td.api.Logging.TDLoggingManager;
 
 /**
  * Contains functions to set up BootStrap and the Heroku API
@@ -21,8 +22,7 @@ import td.api.Logging.History;
 public class Main {
 
     public static void main(String[] args) {
-        SpringApplication.run(oneForm.OneFormEmail_V2.Main.class, args);
-
+        SpringApplication.run(Main.class, args);
     }
 
     @Bean
