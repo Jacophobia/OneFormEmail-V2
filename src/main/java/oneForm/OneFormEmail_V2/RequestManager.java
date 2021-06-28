@@ -16,7 +16,7 @@ public class RequestManager extends TDThreadManager {
         super(5, 10, 1, 50);
     }
 
-    public void addServiceRequest(ServiceRequest runnable, History history, String threadName) throws InterruptedException {
+    public void addServiceRequest(ProcessRequest runnable, History history, String threadName) throws InterruptedException {
         boolean taskAdded = false;
         int waitTime = 5000;
         while (!taskAdded) {

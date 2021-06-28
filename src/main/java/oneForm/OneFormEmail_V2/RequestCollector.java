@@ -1,33 +1,22 @@
-//THE ANDON CORD REPORT https://td.byui.edu/TDNext/Apps/42/Tickets/New?formId=3068
+package oneForm.OneFormEmail_V2;
 
-package oneForm;
-
-import oneForm.OneFormEmail_V2.RequestManager;
 import oneForm.Runnables.ServiceRequest;
-import org.springframework.web.bind.annotation.*;
-import td.api.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import td.api.HttpCommunication.ResourceType;
-import td.api.Logging.*;
+import td.api.Logging.History;
+import td.api.TeamDynamix;
 
 import javax.annotation.Resource;
 
-import static java.lang.Integer.parseInt;
-
-
-/**
- * This is the main driver, here we call all of the functions needed to create the new
- *  tickets and upload them to TD. We also define the create and upload functions here.
- *
- * @author Robby Breidenbaugh
- * @since 12/21/20
- */
-
 @RestController
-public class oneFormDriver {
+public class RequestCollector {
     @Resource(name = "teamDynamix")
     private TeamDynamix Td;
 
-    private static final RequestManager threadManager = new RequestManager();
+    private static final RequestManager requestManager = new RequestManager();
     History history = new History(ResourceType.NONE, "Master History");
 
     /**
@@ -41,10 +30,9 @@ public class oneFormDriver {
     @RequestMapping(value = "/executeProgram", params = {"ticketID"})
     public @ResponseBody
     int sendNewTicket(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
-        threadManager.addServiceRequest(new ServiceRequest(ticketID), history, "Ticket ID: " + ticketID);
+        requestManager.addServiceRequest(new ProcessRequest(ticketID), history, "Ticket ID: " + ticketID);
 
         return 123;
 
     }
-
 }

@@ -33,7 +33,7 @@ public class Main {
 
     @Bean(name = "teamDynamix")
     public TeamDynamix getTeamDynamix() {
-        History history = new History(ResourceType.NONE, "Created to allow program to run.");
+        History history = new History(ResourceType.NONE, "Master History");
         return new TeamDynamix(System.getenv("TD_API_BASE_URL"), System.getenv("USERNAME"), System.getenv("PASSWORD"), history);
     }
 }

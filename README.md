@@ -1,14 +1,21 @@
 # OneFormEmail-V2
 This is version two of the Email OneForm.
 
-## ThreadManager
+If you are just editing the OneForm-Email for the first time, please read the 
+[Setup Guide](SETUP_GUIDE.md).
+
+## RequestManager
     Description:
     This class will wait for a request to be made, and when one is, it will 
     launch a thread which runs the tasks contained in ProcessRequest.
 
     extends TDThreadManager
     Private:
+    countTicketSemaphore: Semaphore
+    andonTicektSemaphore: Semaphore
     Public:
+    RequestManager()
+    addServiceRequest(:ProcessRequest, :History, :String): void
 
 ## ProcessRequest
     Description:
