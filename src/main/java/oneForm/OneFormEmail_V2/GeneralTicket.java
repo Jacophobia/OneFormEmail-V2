@@ -1,5 +1,10 @@
 package oneForm.OneFormEmail_V2;
 
-class GeneralTicket {
+import td.api.TeamDynamix;
+
+abstract class GeneralTicket {
+    protected TeamDynamix api;
+
+    abstract public void uploadTicket();
 
 }

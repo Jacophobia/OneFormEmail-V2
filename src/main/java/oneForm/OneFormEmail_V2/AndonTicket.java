@@ -1,5 +1,12 @@
 package oneForm.OneFormEmail_V2;
 
-class AndonTicket {
+import td.api.TeamDynamix;
+
+class AndonTicket extends GeneralTicket{
+
+    public AndonTicket(TeamDynamix api) {
+        super();
+        this.api = api;
+    }
 
 }

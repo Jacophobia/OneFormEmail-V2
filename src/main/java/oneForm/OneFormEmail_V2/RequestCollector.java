@@ -1,6 +1,5 @@
 package oneForm.OneFormEmail_V2;
 
-import oneForm.Runnables.ServiceRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,12 +26,27 @@ public class RequestCollector {
      */
 
 
-    @RequestMapping(value = "/executeProgram", params = {"ticketID"})
+    @RequestMapping(value = "/send-escalated-request", params = {"ticketID"})
     public @ResponseBody
-    int sendNewTicket(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
+    int sendEscalatedRequest(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
         requestManager.addServiceRequest(new ProcessRequest(ticketID), history, "Ticket ID: " + ticketID);
 
         return 123;
+    }
 
+    @RequestMapping(value = "/send-resolved-request", params = {"ticketID"})
+    public @ResponseBody
+    int sendResolvedRequest(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
+        requestManager.addServiceRequest(new ProcessRequest(ticketID), history, "Ticket ID: " + ticketID);
+
+        return 123;
+    }
+
+    @RequestMapping(value = "/send-spam-request", params = {"ticketID"})
+    public @ResponseBody
+    int sendSpamRequest(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
+        requestManager.addServiceRequest(new ProcessRequest(ticketID), history, "Ticket ID: " + ticketID);
+
+        return 123;
     }
 }
