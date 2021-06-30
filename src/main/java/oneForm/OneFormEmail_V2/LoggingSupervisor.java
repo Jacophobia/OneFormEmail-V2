@@ -44,4 +44,8 @@ public class LoggingSupervisor {
     public History getHistory() {
         return history;
     }
+
+    public TDLoggingManager getLoggingManager() {
+        return loggingManager;
+    }
 }

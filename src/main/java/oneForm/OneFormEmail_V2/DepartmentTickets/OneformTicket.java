@@ -3,9 +3,9 @@ package oneForm.OneFormEmail_V2.DepartmentTickets;
 import oneForm.OneFormEmail_V2.DepartmentTicket;
 import td.api.TeamDynamix;
 
-class FinancialAidTicket extends DepartmentTicket {
+public class OneformTicket extends DepartmentTicket {
 
-    public FinancialAidTicket(TeamDynamix api) {
+    public OneformTicket(TeamDynamix api) {
         super(api);
     }
 

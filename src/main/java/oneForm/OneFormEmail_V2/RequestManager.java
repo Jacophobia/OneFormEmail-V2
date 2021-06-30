@@ -16,7 +16,8 @@ public class RequestManager extends TDThreadManager {
         super(5, 10, 1, 50);
     }
 
-    public void addServiceRequest(ProcessRequest request, History history, String threadName) throws InterruptedException {
+    public void addServiceRequest(RequestCollector.ACTION_TAKEN ACTION, ProcessRequest request, History history, String threadName) throws InterruptedException {
+        System.out.println(ACTION);
         LoggingSupervisor debug = new LoggingSupervisor(history);
         boolean taskAdded = false;
         int waitTime = 5000;

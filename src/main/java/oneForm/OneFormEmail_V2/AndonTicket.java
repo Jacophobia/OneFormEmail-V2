@@ -9,4 +9,8 @@ class AndonTicket extends GeneralTicket{
         this.api = api;
     }
 
+    @Override
+    public void uploadTicket() {
+
+    }
 }
