@@ -9,9 +9,6 @@ import org.springframework.context.annotation.Bean;
 import td.api.*;
 import td.api.HttpCommunication.ResourceType;
 import td.api.Logging.History;
-import td.api.Logging.TDLoggingManager;
-
-import javax.annotation.Resource;
 
 /**
  * Contains functions to set up BootStrap and the Heroku API
@@ -36,7 +33,7 @@ public class Main {
     @Bean(name = "teamDynamix")
     public TeamDynamix getTeamDynamix() {
         History history = new History(ResourceType.NONE, "Master History");;
-        if (Config.sandbox) {
+        if (Settings.sandbox) {
             return new TeamDynamix(
                     System.getenv("TD_API_BASE_URL") + "SB",
                     System.getenv("USERNAME"),

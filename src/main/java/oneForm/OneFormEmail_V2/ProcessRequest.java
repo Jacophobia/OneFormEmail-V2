@@ -8,22 +8,45 @@ import td.api.HttpCommunication.ResourceType;
 import td.api.Logging.History;
 import td.api.Logging.TDLoggingManager;
 import td.api.MultiThreading.TDRunnable;
+import td.api.TeamDynamix;
 import td.api.Ticket;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 public class ProcessRequest extends TDRunnable {
+    // Constants
+    public static final int ONE_FORM_APPLICATION_ID = 48;
+
+    // Semaphores
     private Semaphore countTicketSemaphore;
     private Semaphore andonTicketSemaphore;
-    private LoggingSupervisor debug;
-    private ArrayList<Ticket> tickets;
+
+    // Main
+    private TeamDynamix api;
     private OneformTicket oneformTicket;
     private DepartmentTicket departmentTicket;
+    private LoggingSupervisor debug;
+    private ArrayList<Ticket> tickets;
+
+    // Other
+    private int oneformTicketID;
 
     public ProcessRequest(int ticketID) {
-        super(new TDLoggingManager(Config.debug), new History(ResourceType.TICKET, String.valueOf(ticketID)));
+        super(new TDLoggingManager(Settings.debug), new History(ResourceType.TICKET, String.valueOf(ticketID)));
         debug = new LoggingSupervisor(this.history);
+        oneformTicketID = ticketID;
+        if (Settings.sandbox)
+            api = new TeamDynamix(System.getenv("TD_API_BASE_URL") + "SB",
+                    System.getenv("USERNAME"),
+                    System.getenv("PASSWORD"),
+                    debug.getHistory());
+        else {
+            api = new TeamDynamix(System.getenv("TD_API_BASE_URL"),
+                    System.getenv("USERNAME"),
+                    System.getenv("PASSWORD"),
+                    debug.getHistory());
+        }
 
     }
 
@@ -48,7 +71,12 @@ public class ProcessRequest extends TDRunnable {
         }
     }
 
-    private void processTicketRequest() {
+    private void processTicketRequest() throws TDException {
+        oneformTicket = (OneformTicket) api.getTicket(ONE_FORM_APPLICATION_ID, oneformTicketID);
+        debug.log("Oneform Ticket Id: " + oneformTicket.getId());
+    }
 
+    private DepartmentTicket getDepartmentTicket() {
+        return null;
     }
 }

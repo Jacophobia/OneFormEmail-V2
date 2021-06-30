@@ -7,13 +7,13 @@ import td.api.Logging.TDLoggingManager;
 import java.util.logging.Level;
 
 public class LoggingSupervisor {
-    History history;
-    Class<?> currentClass;
-    String currentMethod;
-    TDLoggingManager loggingManager;
+    private History history;
+    private Class<?> currentClass;
+    private String currentMethod;
+    private TDLoggingManager loggingManager;
 
     public LoggingSupervisor(History history) {
-        loggingManager = new TDLoggingManager(Config.debug);
+        loggingManager = new TDLoggingManager(Settings.debug);
         this.history = history;
     }
 
@@ -26,7 +26,9 @@ public class LoggingSupervisor {
     }
 
     public void log(String message) {
-        history.addEvent(new LoggingEvent(message, currentMethod, currentClass, Level.INFO));
+        if (Settings.displayInfo) {
+            history.addEvent(new LoggingEvent(message, currentMethod, currentClass, Level.INFO));
+        }
     }
 
     public void logWarning(String message) {
