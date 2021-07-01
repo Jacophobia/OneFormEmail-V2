@@ -8,7 +8,7 @@ public class Settings {
     // If you would like tickets to be created in the teamdynamix sandbox
     // instead of the live version of teamdynamix, then set this value to
     // true
-    public static boolean sandbox = true;
+    public static boolean sandbox = false;
 
     // If you would like to display error messages instead of all messages,
     // set this variable to false.

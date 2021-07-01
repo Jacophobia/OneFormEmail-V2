@@ -1,5 +1,6 @@
 package oneForm.OneFormEmail_V2;
 
+import com.google.gson.Gson;
 import oneForm.OneFormEmail_V2.DepartmentTickets.OneformTicket;
 import td.api.Exceptions.ExceptionMessages.FaultTDExceptionMessage;
 import td.api.Exceptions.ExceptionMessages.TDExceptionMessageFactory;
@@ -72,7 +73,9 @@ public class ProcessRequest extends TDRunnable {
     }
 
     private void processTicketRequest() throws TDException {
-        oneformTicket = (OneformTicket) api.getTicket(ONE_FORM_APPLICATION_ID, oneformTicketID);
+        Gson gson = new Gson();
+        String json = gson.toJson(api.getTicket(ONE_FORM_APPLICATION_ID, oneformTicketID));
+        oneformTicket = gson.fromJson(json, OneformTicket.class);
         debug.log("Oneform Ticket Id: " + oneformTicket.getId());
     }
 

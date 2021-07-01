@@ -1,9 +1,7 @@
-oneForm/OneFormEmail_V2/Settings.java
- oneForm.OneFormEmail_V2.Settings
-oneForm/OneFormEmail_V2/Main.java
- oneForm.OneFormEmail_V2.Main
 oneForm/OneFormEmail_V2/DepartmentTickets/ByuiTicket.java
  oneForm.OneFormEmail_V2.DepartmentTickets.ByuiTicket
+oneForm/OneFormEmail_V2/Main.java
+ oneForm.OneFormEmail_V2.Main
 oneForm/OneFormEmail_V2/RequestManager.java
  oneForm.OneFormEmail_V2.RequestManager
 oneForm/OneFormEmail_V2/CountTicket.java
@@ -14,6 +12,8 @@ oneForm/OneFormEmail_V2/DepartmentTickets/OneformTicket.java
  oneForm.OneFormEmail_V2.DepartmentTickets.OneformTicket
 oneForm/OneFormEmail_V2/DepartmentTickets/SrrTicket.java
  oneForm.OneFormEmail_V2.DepartmentTickets.SrrTicket
+oneForm/OneFormEmail_V2/Settings.java
+ oneForm.OneFormEmail_V2.Settings
 oneForm/OneFormEmail_V2/GeneralTicket.java
  oneForm.OneFormEmail_V2.GeneralTicket
 oneForm/OneFormEmail_V2/DepartmentTickets/AdvisingTicket.java
