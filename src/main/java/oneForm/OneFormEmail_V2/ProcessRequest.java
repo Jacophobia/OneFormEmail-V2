@@ -15,6 +15,7 @@ import td.api.Ticket;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+
 public class ProcessRequest extends TDRunnable {
     // Constants
     public static final int ONE_FORM_APPLICATION_ID = 48;
@@ -73,13 +74,26 @@ public class ProcessRequest extends TDRunnable {
     }
 
     private void processTicketRequest() throws TDException {
+        oneformTicket = retrieveOneFormTicket();
+        debug.log("Oneform Ticket Id: " + oneformTicket.getId());
+    }
+
+    private OneformTicket retrieveOneFormTicket() throws TDException {
         Gson gson = new Gson();
         String json = gson.toJson(api.getTicket(ONE_FORM_APPLICATION_ID, oneformTicketID));
-        oneformTicket = gson.fromJson(json, OneformTicket.class);
-        debug.log("Oneform Ticket Id: " + oneformTicket.getId());
+        return gson.fromJson(json, OneformTicket.class);
     }
 
     private DepartmentTicket getDepartmentTicket() {
         return null;
+    }
+
+    /**
+     * This function will take a General ticket's child class and return it as a
+     * ticket object which can interact with the TD api.
+     * @return a ticket object which can be sent to the api.
+     */
+    private Ticket convertToTicket() {
+        return new Ticket();
     }
 }
