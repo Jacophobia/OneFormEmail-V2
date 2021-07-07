@@ -17,8 +17,8 @@ public class RequestManager extends TDThreadManager {
     }
 
     public void addServiceRequest(RequestCollector.ACTION_TAKEN ACTION, ProcessRequest request, History history, String threadName) throws InterruptedException {
-        System.out.println(ACTION);
-        LoggingSupervisor debug = new LoggingSupervisor(history);
+        LoggingSupervisor debug = new LoggingSupervisor(history, RequestManager.class);
+        debug.log("addServiceRequest","Beginning request, agent has selected " + ACTION);
         boolean taskAdded = false;
         int waitTime = 5000;
         while (!taskAdded) {
@@ -29,13 +29,13 @@ public class RequestManager extends TDThreadManager {
                 taskAdded = true;
             }
             catch (RejectedExecutionException exception) {
-                history.addEvent(new LoggingEvent("Thread Queue is full. Waiting for " + waitTime / 1000 + " seconds", "addServiceRequest", RequestManager.class, Level.WARNING));
+                debug.logWarning("addServiceRequest", "Thread Queue is full. Waiting for " + waitTime / 1000 + " seconds");
                 Thread.sleep(waitTime);
                 waitTime += 1000;
                 taskAdded = false;
             }
         }
-        if (threadsLaunched % 5 == 0) {
+        if (threadsLaunched % 5 == 4) {
             debug.displayLog();
         }
     }
