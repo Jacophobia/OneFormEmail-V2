@@ -1,6 +1,5 @@
 package oneForm.OneFormEmail_V2;
 
-import oneForm.OneFormEmail_V2.DepartmentTickets.OneformTicket;
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
@@ -10,8 +9,7 @@ import td.api.Ticket;
 import java.util.HashMap;
 import java.util.Map;
 
-abstract class GeneralTicket extends Ticket {
-    protected TeamDynamix api;
+public abstract class GeneralTicket extends Ticket {
     protected LoggingSupervisor debug;
     protected Map<Integer, String> ticketAttributes = new HashMap<>();
     protected OneformTicket oneformTicket;
@@ -19,11 +17,7 @@ abstract class GeneralTicket extends Ticket {
 
     public GeneralTicket(OneformTicket oneformTicket, History history) {
         super();
-        debug = new LoggingSupervisor(history, this.getClass());
-        this.oneformTicket = oneformTicket;
-        for (CustomAttribute attribute : this.getAttributes()) {
-            ticketAttributes.put(attribute.getId(), attribute.getValue());
-        }
+        initializeTicket(history, oneformTicket);
     }
 
     public void setApplicationID(int applicationID) {
@@ -34,28 +28,37 @@ abstract class GeneralTicket extends Ticket {
         return applicationID;
     }
 
-    public void initializeTicket(TeamDynamix api, History history, OneformTicket oneformTicket) {
-
-        assert api != null : "The api from the parameters has not been initialized";
-        this.api = api;
-
-        assert oneformTicket != null : "The oneformTicket from the parameters has not been initialized";
+    public void initializeTicket(History history, OneformTicket oneformTicket) {
+        debug = new LoggingSupervisor(history, this.getClass());
+        // Here I initialized another Teamdynamix object so that we can create
+        // tickets in sandbox when sandbox mode is on, while still accessing
+        // info from tickets in the live version of teamdynamix.
+        debug.log("initializeTicket", "Beginning Ticket Initialization");
+        String sandboxExtension = "";
+        if (Settings.sandbox)
+            sandboxExtension = "SB";
+        TeamDynamix api = new TeamDynamix(
+                System.getenv("TD_API_BASE_URL") + sandboxExtension,
+                System.getenv("USERNAME"),
+                System.getenv("PASSWORD"),
+                debug.getHistory());
+        assert oneformTicket != null : "The oneFormTicket from the parameters has not been initialized";
         this.oneformTicket = oneformTicket;
 
         assert history != null : "The history from the parameters has not been initialized";
         assert this.getClass() != null : "The class type cannot be retrieved";
-        debug = new LoggingSupervisor(history, this.getClass());
 
         assert this.getAttributes() != null : "The custom attributes could not be retrieved";
         this.ticketAttributes = new HashMap<>();
+
         for (CustomAttribute attribute : this.getAttributes()) {
             assert attribute != null : "The attribute is empty";
             ticketAttributes.put(attribute.getId(), attribute.getValue());
         }
-        debug.log("initializeTicket", "Initializing Ticket");
+        debug.log("initializeTicket", "Ticket Initialized.");
     }
 
-    abstract public void uploadTicket(Ticket ticket, int appId) throws TDException;
+    abstract public void prepareTicketUpload() throws TDException;
 
     public String getAttribute(int attributeID){
         assert ticketAttributes != null : "ticketAttributes has not been initialized";
