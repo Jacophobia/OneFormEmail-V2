@@ -1,14 +1,13 @@
 package oneForm.OneFormEmail_V2.DepartmentTickets;
 
 import oneForm.OneFormEmail_V2.DepartmentTicket;
-import oneForm.OneFormEmail_V2.LoggingSupervisor;
+import oneForm.OneFormEmail_V2.OneformTicket;
 import td.api.Logging.History;
-import td.api.TeamDynamix;
 
 public class PathwayTicket extends DepartmentTicket {
 
-    public PathwayTicket(TeamDynamix api, History history, OneformTicket oneformTicket) {
-        super(api, history, oneformTicket);
+    public PathwayTicket(History history, OneformTicket oneformTicket) {
+        super(history, oneformTicket);
         applicationID = 54;
     }
 
