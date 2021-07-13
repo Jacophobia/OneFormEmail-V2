@@ -6,7 +6,7 @@ import td.api.Logging.History;
 public class OneformTicket extends GeneralTicket {
 
     public OneformTicket(History history, OneformTicket oneformTicket) {
-        super(oneformTicket, history);
+        super(history);
     }
 
     @Override

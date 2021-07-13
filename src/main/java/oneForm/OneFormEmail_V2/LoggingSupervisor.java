@@ -8,82 +8,115 @@ import java.util.logging.Level;
 
 public class LoggingSupervisor {
     private History history;
-    private Class<?> currentClass;
+    private History masterHistory = RequestCollector.history;
     private String currentMethod;
     private TDLoggingManager loggingManager;
 
-    public LoggingSupervisor(History history, Class<?> currentClass) {
+    public LoggingSupervisor(History history) {
         loggingManager = new TDLoggingManager(Settings.debug);
 
-        this.currentClass = currentClass;
-
-        assert currentClass != null : "The class value passed as a parameter has not been initialized";
-
-        assert history != null : "The history value passed as a parameter has not been initialized";
+        assert history != null :
+            "The history value passed as a parameter has not been initialized";
 
         this.history = history;
     }
 
-    public void setCurrentClass(Class<?> newClass) {
-        assert newClass != null : "The class declaration is empty";
-
-        this.currentClass = newClass;
-    }
-
     public void setCurrentMethod(String newMethod) {
-        assert newMethod != null && !newMethod.equals("") : "The method declaration is empty";
+        assert newMethod != null && !newMethod.equals("") :
+            "The method declaration is empty";
 
         this.currentMethod = newMethod;
     }
 
-    public void log(String message) {
-        assert loggingManager != null : "Logging Manager has not been initialized";
-        assert history != null : "The current history has not been initialized";
-        assert currentMethod != null && !currentMethod.equals("") : "The current method has not been declared";
-        assert currentClass != null : "The current class has not been declared";
+    public void log(Class<?> currentClass, String message) {
+        assert loggingManager != null :
+            "Logging Manager has not been initialized";
+        assert history != null :
+            "The current history has not been initialized";
+        assert currentMethod != null && !currentMethod.equals("") :
+            "The current method has not been declared";
+        assert currentClass != null :
+            "The current class has not been declared";
 
         if (Settings.displayInfo) {
-            history.addEvent(new LoggingEvent(message, currentMethod, currentClass, Level.INFO));
+            history.addEvent(new LoggingEvent(
+                message, currentMethod,
+                currentClass,
+                Level.INFO)
+            );
         }
     }
 
-    public void log(String currentMethod, String message) {
+    public void log(Class<?> currentClass, String currentMethod,
+                    String message) {
         setCurrentMethod(currentMethod);
-        log(message);
+        log(currentClass, message);
     }
 
 
-    public void logWarning(String message) {
-        assert loggingManager != null : "Logging Manager has not been initialized";
-        assert history != null : "The current history has not been initialized";
-        assert currentMethod != null && !currentMethod.equals("") : "The current method has not been declared";
-        assert currentClass != null : "The current class has not been declared";
+    public void logWarning(Class<?> currentClass, String message) {
+        assert loggingManager != null :
+            "Logging Manager has not been initialized";
+        assert history != null :
+            "The current history has not been initialized";
+        assert currentMethod != null && !currentMethod.equals("") :
+            "The current method has not been declared";
+        assert currentClass != null :
+            "The current class has not been declared";
 
-        history.addEvent(new LoggingEvent(message, currentMethod, currentClass, Level.WARNING));
+        history.addEvent(new LoggingEvent(
+            message, currentMethod,
+            currentClass,
+            Level.WARNING)
+        );
     }
 
-    public void logWarning(String currentMethod, String message) {
+    public void logWarning(Class<?> currentClass, String currentMethod,
+                           String message) {
         setCurrentMethod(currentMethod);
-        logWarning(message);
+        logWarning(currentClass, message);
     }
 
-    public void logError(String message) {
-        assert loggingManager != null : "Logging Manager has not been initialized";
-        assert history != null : "The current history has not been initialized";
-        assert currentMethod != null && !currentMethod.equals("") : "The current method has not been declared";
-        assert currentClass != null : "The current class has not been declared";
+    public void logError(Class<?> currentClass, String message) {
+        assert loggingManager != null :
+            "Logging Manager has not been initialized";
+        assert history != null :
+            "The current history has not been initialized";
+        assert masterHistory != null :
+            "The current master history has not been initialized";
+        assert currentMethod != null && !currentMethod.equals("") :
+            "The current method has not been declared";
+        assert currentClass != null :
+            "The current class has not been declared";
 
-        history.addEvent(new LoggingEvent(message, currentMethod, currentClass, Level.SEVERE));
+        history.addEvent(new LoggingEvent(
+            message,
+            currentMethod,
+            currentClass,
+            Level.SEVERE)
+        );
+
+        assert ProcessRequest.oneFormTicketID > 0 :
+            "The oneFormTicketID has not been initialized.";
+        masterHistory.addEvent(new LoggingEvent(
+            message,
+            "" + ProcessRequest.oneFormTicketID,
+            currentClass,
+            Level.SEVERE)
+        );
     }
 
-    public void logError(String currentMethod, String message) {
+    public void logError(Class<?> currentClass, String currentMethod,
+                         String message) {
         setCurrentMethod(currentMethod);
-        logError(message);
+        logError(currentClass, message);
     }
 
     public void displayLog() {
-        assert loggingManager != null : "Logging Manager has not been initialized";
-        assert history != null : "History has not been initialized";
+        assert loggingManager != null :
+            "Logging Manager has not been initialized";
+        assert history != null :
+            "History has not been initialized";
 
         loggingManager.logHistory(history);
     }
@@ -95,7 +128,8 @@ public class LoggingSupervisor {
     }
 
     public TDLoggingManager getLoggingManager() {
-        assert loggingManager != null : "Logging Manager has not been initialized";
+        assert loggingManager != null :
+            "Logging Manager has not been initialized";
 
         return loggingManager;
     }

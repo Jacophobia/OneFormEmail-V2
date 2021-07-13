@@ -5,7 +5,7 @@ import td.api.Logging.History;
 class CountTicket extends GeneralTicket {
 
     public CountTicket(History history, OneformTicket oneformTicket) {
-        super(oneformTicket, history);
+        super(history);
     }
 
     @Override

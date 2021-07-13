@@ -32,20 +32,25 @@ public class Main {
 
     @Bean(name = "teamDynamix")
     public TeamDynamix getTeamDynamix() {
-        History history = new History(ResourceType.NONE, "Master History");;
+        History history = new History(
+            ResourceType.NONE,
+            "Master History"
+        );
         if (Settings.sandbox) {
             return new TeamDynamix(
-                    System.getenv("TD_API_BASE_URL") + "SB",
-                    System.getenv("USERNAME"),
-                    System.getenv("PASSWORD"),
-                    history);
+                System.getenv("TD_API_BASE_URL") + "SB",
+                System.getenv("USERNAME"),
+                System.getenv("PASSWORD"),
+                history
+            );
         }
         else {
             return new TeamDynamix(
-                    System.getenv("TD_API_BASE_URL"),
-                    System.getenv("USERNAME"),
-                    System.getenv("PASSWORD"),
-                    history);
+                System.getenv("TD_API_BASE_URL"),
+                System.getenv("USERNAME"),
+                System.getenv("PASSWORD"),
+                history
+            );
         }
     }
 }

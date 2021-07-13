@@ -16,39 +16,61 @@ public class RequestCollector {
     private TeamDynamix Td;
 
     private static final RequestManager requestManager = new RequestManager();
-    History history = new History(ResourceType.NONE, "Master History");
+    public static History history = new History(
+        ResourceType.NONE,
+        "Master History"
+    );
     public static enum ACTION_TAKEN {
         ESCALATED, RESOLVED, SPAM
     }
 
     /**
      * sendNewTicket:
-     * This is where the magic happens. On creation we get the ID of the One Form ticket,
-     * we then use that to call all of the functions needed to pass that information into
-     * the correct ticket of the correct application.
+     * This is where the magic happens. On creation we get the ID of the
+     * One Form ticket, we then use that to call all of the functions
+     * needed to pass that information into the correct ticket of the
+     * correct application.
      */
 
 
     @RequestMapping(value = "/send-escalated-request", params = {"ticketID"})
     public @ResponseBody
-    int sendEscalatedRequest(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
-        requestManager.addServiceRequest(ACTION_TAKEN.ESCALATED, new ProcessRequest(ticketID), history, "Ticket ID: " + ticketID);
+    int sendEscalatedRequest(@RequestParam(value = "ticketID") int ticketID
+            ) throws InterruptedException {
+        requestManager.addServiceRequest(
+            ACTION_TAKEN.ESCALATED,
+            new ProcessRequest(ticketID),
+            history,
+            "Ticket ID: " + ticketID
+        );
 
         return 123;
     }
 
     @RequestMapping(value = "/send-resolved-request", params = {"ticketID"})
     public @ResponseBody
-    int sendResolvedRequest(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
-        requestManager.addServiceRequest(ACTION_TAKEN.RESOLVED, new ProcessRequest(ticketID), history, "Ticket ID: " + ticketID);
+    int sendResolvedRequest(@RequestParam(value = "ticketID") int ticketID
+            ) throws InterruptedException {
+        requestManager.addServiceRequest(
+            ACTION_TAKEN.RESOLVED,
+            new ProcessRequest(ticketID),
+            history,
+            "Ticket ID: " + ticketID
+        );
 
         return 123;
     }
 
     @RequestMapping(value = "/send-spam-request", params = {"ticketID"})
     public @ResponseBody
-    int sendSpamRequest(@RequestParam(value = "ticketID") int ticketID) throws InterruptedException {
-        requestManager.addServiceRequest(ACTION_TAKEN.SPAM, new ProcessRequest(ticketID), history, "Ticket ID: " + ticketID);
+    int sendSpamRequest(@RequestParam(value = "ticketID") int ticketID
+            ) throws InterruptedException {
+        requestManager.addServiceRequest(
+            ACTION_TAKEN.SPAM,
+            new ProcessRequest(ticketID),
+            history,
+            "Ticket ID: " + ticketID
+        );
 
         return 123;
     }

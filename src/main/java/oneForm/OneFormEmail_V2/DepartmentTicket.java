@@ -6,8 +6,13 @@ import td.api.Logging.History;
 import td.api.Ticket;
 
 public abstract class DepartmentTicket extends GeneralTicket {
+    protected OneformTicket oneformTicket;
     public DepartmentTicket(History history, OneformTicket oneformTicket) {
-        super(oneformTicket, history);
+        super(history);
+
+        assert oneformTicket != null :
+            "The oneFormTicket from the parameters has not been initialized";
+        this.oneformTicket = oneformTicket;
     }
 
     @Override
@@ -17,37 +22,34 @@ public abstract class DepartmentTicket extends GeneralTicket {
 
     @Override
     public String toString() {
-        return  "\n *     - Editable" +
-                "\n *  *  - Editable and Required" +
-                "\n *  *    TypeId= " + getTypeId() +
-                "\n *       FormId= " + getFormId() +
-                "\n *  *    Title= " + getTitle() +
-                "\n *       Description= " + getDescription() +
-                "\n *  *    AccountId= " + getAccountId() +
-                "\n *       SourceId= " + getSourceId() +
-                "\n *  *    StatusId= " + getStatusId() +
-                "\n *       ImpactId= " + getImpactId() +
-                "\n *       UrgencyId= " + getUrgencyId() +
-                "\n *  *    PriorityId= " + getPriorityId() +
-                "\n *       GoesOffHoldDate= " + getGoesOffHoldDate() +
-                "\n *  *    RequesterUID= " + getRequestorUid() +
-                "\n *       EstimatedMinutes= " + getEstimatedMinutes() +
-                "\n *       StartDate= " + getStartDate() +
-                "\n *       EndDate= " + getEndDate() +
-                "\n *       ResponsibleUID= " + getResponsibleUid() +
-                "\n *       ResponsibleGroupId= " + getResponsibleGroupId() +
-                "\n *       TimeBudget= " + getTimeBudget() +
-                "\n *       ExpensesBudget= " + getExpensesBudget() +
-                "\n *       LocationId= " + getLocationId() +
-                "\n *       LocationRoomId= " + getLocationRoomId() +
-                "\n *       ServiceId= " + getServiceId() +
-                "\n *       ServiceOfferingID= " +
-                "\n *       ArticleId= " + getArticleId() +
-                "\n         AppID= " + getAppId() +
-                "\n         Attributes= " + getAttributes() +
-                "\n         Attachments= " + getAttachments() +
-                "\n         Tasks= " + getTasks() +
-                "\n         Notify= " + getNotify();
+        return
+            "\n *     - Editable" +
+            "\n *  *  - Editable and Required" +
+            "\n" +
+            "\n *  *    TypeId= " + getTypeId() +
+            "\n *  *    Title= " + getTitle() +
+            "\n *  *    AccountId= " + getAccountId() +
+            "\n *  *    StatusId= " + getStatusId() +
+            "\n *  *    PriorityId= " + getPriorityId() +
+            "\n *  *    RequesterUID= " + getRequestorUid() +
+            "\n *       FormId= " + getFormId() +
+            "\n *       Description= " + getDescription() +
+            "\n *       SourceId= " + getSourceId() +
+            "\n *       ImpactId= " + getImpactId() +
+            "\n *       UrgencyId= " + getUrgencyId() +
+            "\n *       GoesOffHoldDate= " + getGoesOffHoldDate() +
+            "\n *       EstimatedMinutes= " + getEstimatedMinutes() +
+            "\n *       StartDate= " + getStartDate() +
+            "\n *       EndDate= " + getEndDate() +
+            "\n *       ResponsibleUID= " + getResponsibleUid() +
+            "\n *       ResponsibleGroupId= " + getResponsibleGroupId() +
+            "\n *       TimeBudget= " + getTimeBudget() +
+            "\n *       ExpensesBudget= " + getExpensesBudget() +
+            "\n *       LocationId= " + getLocationId() +
+            "\n *       LocationRoomId= " + getLocationRoomId() +
+            "\n *       ServiceId= " + getServiceId() +
+            "\n *       ServiceOfferingID= " +
+            "\n *       ArticleId= " + getArticleId();
     }
 
 }

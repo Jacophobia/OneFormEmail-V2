@@ -12,12 +12,11 @@ import java.util.Map;
 public abstract class GeneralTicket extends Ticket {
     protected LoggingSupervisor debug;
     protected Map<Integer, String> ticketAttributes = new HashMap<>();
-    protected OneformTicket oneformTicket;
     protected int applicationID;
 
-    public GeneralTicket(OneformTicket oneformTicket, History history) {
+    public GeneralTicket(History history) {
         super();
-        initializeTicket(history, oneformTicket);
+        initializeTicket(history);
     }
 
     public void setApplicationID(int applicationID) {
@@ -28,162 +27,160 @@ public abstract class GeneralTicket extends Ticket {
         return applicationID;
     }
 
-    public void initializeTicket(History history, OneformTicket oneformTicket) {
-        debug = new LoggingSupervisor(history, this.getClass());
-        // Here I initialized another Teamdynamix object so that we can create
-        // tickets in sandbox when sandbox mode is on, while still accessing
-        // info from tickets in the live version of teamdynamix.
-        debug.log("initializeTicket", "Beginning Ticket Initialization");
-        String sandboxExtension = "";
-        if (Settings.sandbox)
-            sandboxExtension = "SB";
-        TeamDynamix api = new TeamDynamix(
-                System.getenv("TD_API_BASE_URL") + sandboxExtension,
-                System.getenv("USERNAME"),
-                System.getenv("PASSWORD"),
-                debug.getHistory());
-        assert oneformTicket != null : "The oneFormTicket from the parameters has not been initialized";
-        this.oneformTicket = oneformTicket;
+    public void initializeTicket(History history) {
+        debug = new LoggingSupervisor(history);
 
-        assert history != null : "The history from the parameters has not been initialized";
-        assert this.getClass() != null : "The class type cannot be retrieved";
+        debug.log(
+            this.getClass(),
+            "initializeTicket",
+            "Beginning " + this.getClass().getSimpleName() + " Initialization");
 
-        assert this.getAttributes() != null : "The custom attributes could not be retrieved";
+        assert history != null :
+            "The history from the parameters has not been initialized";
+        assert this.getAttributes() != null :
+            "The custom attributes could not be retrieved";
+
         this.ticketAttributes = new HashMap<>();
 
         for (CustomAttribute attribute : this.getAttributes()) {
             assert attribute != null : "The attribute is empty";
             ticketAttributes.put(attribute.getId(), attribute.getValue());
         }
-        debug.log("initializeTicket", "Ticket Initialized.");
+        debug.log(this.getClass(), "Ticket Initialized.");
     }
 
     abstract public void prepareTicketUpload() throws TDException;
 
     public String getAttribute(int attributeID){
-        assert ticketAttributes != null : "ticketAttributes has not been initialized";
-        assert ticketAttributes.containsKey(attributeID) : "Error attribute not found.";
+        assert ticketAttributes != null :
+            "ticketAttributes has not been initialized";
+        assert ticketAttributes.containsKey(attributeID) :
+            "Error attribute not found.";
 
         return ticketAttributes.get(attributeID);
     }
 
     public boolean containsAttribute(int attributeID) {
-        assert ticketAttributes != null : "ticketAttributes has not been initialized";
+        assert ticketAttributes != null :
+            "ticketAttributes has not been initialized";
         return ticketAttributes.containsKey(attributeID);
     }
 
     public String toString() {
-        return  "\n *  - Editable\n *  *  - Editable and Required" +
-                "\nTicketId= " + getId() +
-                "\nParentId= " + getParentId() +
-                "\nParentTitle= " + getParentTitle() +
-                "\nParentClass= " + getParentClass() +
-                "\n *  * TypeId= " + getTypeId() +
-                "\nTypeName= " + getTypeName() +
-                "\nTypeCategoryId= " + getTypeCategoryId() +
-                "\nTypeCategoryName= " + getTypeCategoryName() +
-                "\nClassification= " + getClassification() +
-                "\nClassificationName= " + getClassificationName() +
-                "\n * FormId= " + getFormId() +
-                "\nFormName= " + getFormName() +
-                "\n *  * Title= " + getTitle() +
-                "\n * Description= " + getDescription() +
-                "\nUri= " + getUri() +
-                "\n *  * AccountId= " + getAccountId() +
-                "\nAccountName= " + getAccountName() +
-                "\n * SourceId= " + getSourceId() +
-                "\nSourceName= " + getSourceName() +
-                "\n *  * StatusId= " + getStatusId() +
-                "\nStatusName= " + getStatusName() +
-                "\nStatusClass= " + getStatusClass() +
-                "\n * ImpactId= " + getImpactId() +
-                "\nImpactName= " + getImpactName() +
-                "\n * UrgencyId= " + getUrgencyId() +
-                "\nUrgencyName= " + getUrgencyName() +
-                "\n *  * PriorityId= " + getPriorityId() +
-                "\nPriorityName= " + getPriorityName() +
-                "\nPriorityOrder= " + getPriorityOrder() +
-                "\nSlaId= " + getSlaId() +
-                "\nSlaName= " + getSlaName() +
-                "\nSlaViolated= " + isSlaViolated() +
-                "\nSlaRespondByViolated= " + isSlaRespondByViolated() +
-                "\nSlaResolvedByViolated= " + isSlaResolveByViolated() +
-                "\nRespondedByDate= " + getRespondByDate() +
-                "\nResolvedByDate= " + getResolveByDate() +
-                "\nSlaBeginDate= " + getSlaBeginDate() +
-                "\nOnHold= " + isOnHold() +
-                "\nPLacedOnHoldDate= " + getPlacedOnHoldDate() +
-                "\n * GoesOffHoldDate= " + getGoesOffHoldDate() +
-                "\nCreatedDate= " + getCreatedDate() +
-                "\nCreatedUID= " + getCreatedUid() +
-                "\nCreatedFullName= " + getCreatedFullName() +
-                "\nCreatedEmail= " + getCreatedEmail() +
-                "\nModifiedDate= " + getModifiedDate() +
-                "\nModifiedUID= " + getModifiedUid() +
-                "\nModifiedFullName= " + getModifiedFullName() +
-                "\nRequesterName= " + getRequestorName() +
-                "\nRequesterFirstName= " + getRequestorFirstName() +
-                "\nRequesterLastName= " + getRequestorLastName() +
-                "\nRequesterEmail= " + getRequestorEmail() +
-                "\nRequesterPhone= " + getRequestorPhone() +
-                "\n *  * RequesterUID= " + getRequestorUid() +
-                "\nActualMinutes= " + getActualMinutes() +
-                "\n * EstimatedMinutes= " + getEstimatedMinutes() +
-                "\nDaysOld= " + getDaysOld() +
-                "\n * StartDate= " + getStartDate() +
-                "\n * EndDate= " + getEndDate() +
-                "\n * ResponsibleUID= " + getResponsibleUid() +
-                "\nResponsibleFullName= " + getResponsibleFullName() +
-                "\nResponsibleEmail= " + getResponsibleEmail() +
-                "\n * ResponsibleGroupId= " + getResponsibleGroupId() +
-                "\nResponsibleGroupName= " + getResponsibleGroupName() +
-                "\nRespondedDate= " + getRespondedDate() +
-                "\nRespondedUID= " + getRespondedUid() +
-                "\nRespondedFullName= " + getRespondedFullName() +
-                "\nCompletedDate= " + getCompletedDate() +
-                "\nCompletedUID= " + getCompletedUid() +
-                "\nCompletedFullName= " + getCompletedFullName() +
-                "\nReviewerUID= " + getReviewerUid() +
-                "\nReviewerFullName= " + getReviewerFullName() +
-                "\nReviewerEmail= " + getReviewerEmail() +
-                "\nReviewingGroupId= " + getReviewingGroupId() +
-                "\nReviewingGroupName= " + getReviewingGroupName() +
-                "\n * TimeBudget= " + getTimeBudget() +
-                "\n * ExpensesBudget= " + getExpensesBudget() +
-                "\nTimeBudgetUsed= " + getTimeBudgetUsed() +
-                "\nExpensesBudgetUsed= " + getExpensesBudgetUsed() +
-                "\nConvertedToTask= " + isConvertedToTask() +
-                "\nConvertedToTaskDate= " + getConvertedToTaskDate() +
-                "\nConvertedToTaskUid= " + getConvertedToTaskUid() +
-                "\nConvertedToTaskFullName= " + getConvertedToTaskFullName() +
-                "\nTaskProjectId= " + getTaskProjectId() +
-                "\nTaskProjectName= " + getTaskProjectName() +
-                "\nTaskPlanId= " + getTaskPlanId() +
-                "\nTaskPlanName= " + getTaskPlanName() +
-                "\nTaskId= " + getTaskId() +
-                "\nTaskTitle= " + getTaskTitle() +
-                "\nTaskStartDate= " + getTaskStartDate() +
-                "\nTaskEndDate= " + getTaskEndDate() +
-                "\nTaskPercentComplete= " + getTaskPercentComplete() +
-                "\n * LocationId= " + getLocationId() +
-                "\nLocationName= " + getLocationName() +
-                "\n * LocationRoomId= " + getLocationRoomId() +
-                "\nLocationRoomName= " + getLocationRoomName() +
-                "\nRefCode= " + getRefCode() +
-                "\n * ServiceId= " + getServiceId() +
-                "\nServiceName= " + getServiceName() +
-                "\n * ServiceOfferingID= " +
-                "\nServiceOfferingName= " +
-                "\nServiceCategoryId= " + getServiceCategoryId() +
-                "\nServiceCategoryName= " + getServiceCategoryName() +
-                "\n * ArticleId= " + getArticleId() +
-                "\nArticleSubject= " + getArticleSubject() +
-                "\nArticleStatus= " + getArticleStatus() +
-                "\nArticleCategoryPathNames= " + getArticleCategoryPathNames() +
-                "\nAppID= " + getAppId() +
-                "\nAttributes= " + getAttributes() +
-                "\nAttachments= " + getAttachments() +
-                "\nTasks= " + getTasks() +
-                "\nNotify= " + getNotify();
+        return
+            "\n      *  - Editable" +
+            "\n      *  *  - Editable and Required" +
+            "\n" +
+            "\n     TicketId : " + getId() +
+            "\n     ParentId : " + getParentId() +
+            "\n     ParentTitle : " + getParentTitle() +
+            "\n     ParentClass : " + getParentClass() +
+            "\n      *  * TypeId : " + getTypeId() +
+            "\n     TypeName : " + getTypeName() +
+            "\n     TypeCategoryId : " + getTypeCategoryId() +
+            "\n     TypeCategoryName : " + getTypeCategoryName() +
+            "\n     Classification : " + getClassification() +
+            "\n     ClassificationName : " + getClassificationName() +
+            "\n      * FormId : " + getFormId() +
+            "\n     FormName : " + getFormName() +
+            "\n      *  * Title : " + getTitle() +
+            "\n      * Description : " + getDescription() +
+            "\n     Uri : " + getUri() +
+            "\n      *  * AccountId : " + getAccountId() +
+            "\n     AccountName : " + getAccountName() +
+            "\n      * SourceId : " + getSourceId() +
+            "\n     SourceName : " + getSourceName() +
+            "\n      *  * StatusId : " + getStatusId() +
+            "\n     StatusName : " + getStatusName() +
+            "\n     StatusClass : " + getStatusClass() +
+            "\n      * ImpactId : " + getImpactId() +
+            "\n     ImpactName : " + getImpactName() +
+            "\n      * UrgencyId : " + getUrgencyId() +
+            "\n     UrgencyName : " + getUrgencyName() +
+            "\n      *  * PriorityId : " + getPriorityId() +
+            "\n     PriorityName : " + getPriorityName() +
+            "\n     PriorityOrder : " + getPriorityOrder() +
+            "\n     SlaId : " + getSlaId() +
+            "\n     SlaName : " + getSlaName() +
+            "\n     SlaViolated : " + isSlaViolated() +
+            "\n     SlaRespondByViolated : " + isSlaRespondByViolated() +
+            "\n     SlaResolvedByViolated : " + isSlaResolveByViolated() +
+            "\n     RespondedByDate : " + getRespondByDate() +
+            "\n     ResolvedByDate : " + getResolveByDate() +
+            "\n     SlaBeginDate : " + getSlaBeginDate() +
+            "\n     OnHold : " + isOnHold() +
+            "\n     PLacedOnHoldDate : " + getPlacedOnHoldDate() +
+            "\n      * GoesOffHoldDate : " + getGoesOffHoldDate() +
+            "\n     CreatedDate : " + getCreatedDate() +
+            "\n     CreatedUID : " + getCreatedUid() +
+            "\n     CreatedFullName : " + getCreatedFullName() +
+            "\n     CreatedEmail : " + getCreatedEmail() +
+            "\n     ModifiedDate : " + getModifiedDate() +
+            "\n     ModifiedUID : " + getModifiedUid() +
+            "\n     ModifiedFullName : " + getModifiedFullName() +
+            "\n     RequesterName : " + getRequestorName() +
+            "\n     RequesterFirstName : " + getRequestorFirstName() +
+            "\n     RequesterLastName : " + getRequestorLastName() +
+            "\n     RequesterEmail : " + getRequestorEmail() +
+            "\n     RequesterPhone : " + getRequestorPhone() +
+            "\n      *  * RequesterUID : " + getRequestorUid() +
+            "\n     ActualMinutes : " + getActualMinutes() +
+            "\n      * EstimatedMinutes : " + getEstimatedMinutes() +
+            "\n     DaysOld : " + getDaysOld() +
+            "\n      * StartDate : " + getStartDate() +
+            "\n      * EndDate : " + getEndDate() +
+            "\n      * ResponsibleUID : " + getResponsibleUid() +
+            "\n     ResponsibleFullName : " + getResponsibleFullName() +
+            "\n     ResponsibleEmail : " + getResponsibleEmail() +
+            "\n      * ResponsibleGroupId : " + getResponsibleGroupId() +
+            "\n     ResponsibleGroupName : " + getResponsibleGroupName() +
+            "\n     RespondedDate : " + getRespondedDate() +
+            "\n     RespondedUID : " + getRespondedUid() +
+            "\n     RespondedFullName : " + getRespondedFullName() +
+            "\n     CompletedDate : " + getCompletedDate() +
+            "\n     CompletedUID : " + getCompletedUid() +
+            "\n     CompletedFullName : " + getCompletedFullName() +
+            "\n     ReviewerUID : " + getReviewerUid() +
+            "\n     ReviewerFullName : " + getReviewerFullName() +
+            "\n     ReviewerEmail : " + getReviewerEmail() +
+            "\n     ReviewingGroupId : " + getReviewingGroupId() +
+            "\n     ReviewingGroupName : " + getReviewingGroupName() +
+            "\n      * TimeBudget : " + getTimeBudget() +
+            "\n      * ExpensesBudget : " + getExpensesBudget() +
+            "\n     TimeBudgetUsed : " + getTimeBudgetUsed() +
+            "\n     ExpensesBudgetUsed : " + getExpensesBudgetUsed() +
+            "\n     ConvertedToTask : " + isConvertedToTask() +
+            "\n     ConvertedToTaskDate : " + getConvertedToTaskDate() +
+            "\n     ConvertedToTaskUid : " + getConvertedToTaskUid() +
+            "\n     ConvertedToTaskFullName : " + getConvertedToTaskFullName() +
+            "\n     TaskProjectId : " + getTaskProjectId() +
+            "\n     TaskProjectName : " + getTaskProjectName() +
+            "\n     TaskPlanId : " + getTaskPlanId() +
+            "\n     TaskPlanName : " + getTaskPlanName() +
+            "\n     TaskId : " + getTaskId() +
+            "\n     TaskTitle : " + getTaskTitle() +
+            "\n     TaskStartDate : " + getTaskStartDate() +
+            "\n     TaskEndDate : " + getTaskEndDate() +
+            "\n     TaskPercentComplete : " + getTaskPercentComplete() +
+            "\n      * LocationId : " + getLocationId() +
+            "\n     LocationName : " + getLocationName() +
+            "\n      * LocationRoomId : " + getLocationRoomId() +
+            "\n     LocationRoomName : " + getLocationRoomName() +
+            "\n     RefCode : " + getRefCode() +
+            "\n      * ServiceId : " + getServiceId() +
+            "\n     ServiceName : " + getServiceName() +
+            "\n      * ServiceOfferingID : " +
+            "\n     ServiceOfferingName : " +
+            "\n     ServiceCategoryId : " + getServiceCategoryId() +
+            "\n     ServiceCategoryName : " + getServiceCategoryName() +
+            "\n      * ArticleId : " + getArticleId() +
+            "\n     ArticleSubject : " + getArticleSubject() +
+            "\n     ArticleStatus : " + getArticleStatus() +
+            "\n     ArticleCategoryPathNames : " +getArticleCategoryPathNames()+
+            "\n     AppID : " + getAppId() +
+            "\n     Attributes : " + getAttributes() +
+            "\n     Attachments : " + getAttachments() +
+            "\n     Tasks : " + getTasks() +
+            "\n     Notify : " + getNotify();
     }
 }

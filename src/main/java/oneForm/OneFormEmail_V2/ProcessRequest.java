@@ -10,7 +10,6 @@ import td.api.Logging.History;
 import td.api.Logging.TDLoggingManager;
 import td.api.MultiThreading.TDRunnable;
 import td.api.TeamDynamix;
-import td.api.Ticket;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -49,27 +48,33 @@ public class ProcessRequest extends TDRunnable {
     private ArrayList<GeneralTicket> tickets = new ArrayList<>();
 
     // Other
-    private int oneFormTicketID;
+    public static int oneFormTicketID;
 
 
     public ProcessRequest(int ticketID) {
-        super(new TDLoggingManager(Settings.debug), new History(ResourceType.TICKET, String.valueOf(ticketID)));
-        debug = new LoggingSupervisor(this.history, ProcessRequest.class);
+        super(
+            new TDLoggingManager(Settings.debug),
+            new History(ResourceType.TICKET,
+            String.valueOf(ticketID))
+        );
+        debug = new LoggingSupervisor(this.history);
         oneFormTicketID = ticketID;
 
         String sandboxExtension = "";
         if (Settings.sandbox)
             sandboxExtension = "SB";
         push = new TeamDynamix(
-                System.getenv("TD_API_BASE_URL") + sandboxExtension,
-                        System.getenv("USERNAME"),
-                        System.getenv("PASSWORD"),
-                        debug.getHistory());
+            System.getenv("TD_API_BASE_URL") + sandboxExtension,
+            System.getenv("USERNAME"),
+            System.getenv("PASSWORD"),
+            debug.getHistory()
+        );
         pull = new TeamDynamix(
-                        System.getenv("TD_API_BASE_URL"),
-                        System.getenv("USERNAME"),
-                        System.getenv("PASSWORD"),
-                        debug.getHistory());
+            System.getenv("TD_API_BASE_URL"),
+            System.getenv("USERNAME"),
+            System.getenv("PASSWORD"),
+            debug.getHistory()
+        );
     }
 
     public void addCountTicketSemaphore(Semaphore countTicketSemaphore) {
@@ -88,21 +93,31 @@ public class ProcessRequest extends TDRunnable {
         catch (Exception exception) {
             this.countTicketSemaphore.release();
             this.andonTicketSemaphore.release();
-            FaultTDExceptionMessage exceptionMessage = TDExceptionMessageFactory.getFaultTDExceptionMessage(exception);
+            FaultTDExceptionMessage exceptionMessage =
+                TDExceptionMessageFactory.getFaultTDExceptionMessage(exception);
             throw new TDException(exceptionMessage, this.history);
         }
     }
 
     private void processTicketRequest() throws TDException {
-        oneformTicket = retrieveOneFormTicket();
-        debug.log("ProcessTicketRequest", "Oneform Ticket Id: " + oneformTicket.getId());
+        retrieveOneFormTicket();
+        debug.log(
+            this.getClass(),
+            "ProcessTicketRequest",
+            "Oneform Ticket Id: " +
+                oneformTicket.getId()
+        );
         createDepartmentTicket();
         sendCompletedTickets();
     }
     private void sendCompletedTickets() throws TDException {
         for (GeneralTicket ticket  : tickets) {
             if (Settings.displayTicketBodies)
-                debug.log("ProcessTicketRequest", "Uploading " + ticket.toString());
+                debug.log(
+                    this.getClass(),
+                    "ProcessTicketRequest",
+                    "Uploading " + ticket.toString()
+                );
             ticket.prepareTicketUpload();
             push.createTicket(ticket.getApplicationID(), ticket);
         }
@@ -113,65 +128,161 @@ public class ProcessRequest extends TDRunnable {
         push.editTicket(false, oneformTicket);
     }
 
-    private OneformTicket retrieveOneFormTicket() throws TDException {
+    private void retrieveOneFormTicket() throws TDException {
         Gson gson = new Gson();
-        String json = gson.toJson(pull.getTicket(ONE_FORM_APPLICATION_ID, oneFormTicketID));
-        OneformTicket retrievedOneFormTicket = gson.fromJson(json, OneformTicket.class);
-        retrievedOneFormTicket.initializeTicket(debug.getHistory(), retrievedOneFormTicket);
-        return retrievedOneFormTicket;
+        String json = gson.toJson(
+            pull.getTicket(ONE_FORM_APPLICATION_ID, oneFormTicketID)
+        );
+        OneformTicket retrievedOneFormTicket = gson.fromJson(
+            json, OneformTicket.class
+        );
+        retrievedOneFormTicket.initializeTicket(debug.getHistory());
+        this.oneformTicket = retrievedOneFormTicket;
     }
 
     private void createDepartmentTicket() throws TDException {
-        assert oneformTicket.containsAttribute(OFFICE_LIST_1_ATTRIBUTE_ID) : "The oneform ticket does not contain the office list attribute";
-        switch (parseInt(oneformTicket.getAttribute(OFFICE_LIST_1_ATTRIBUTE_ID))) {
+        assert oneformTicket.containsAttribute(OFFICE_LIST_1_ATTRIBUTE_ID) :
+            "The oneform ticket does not contain the office list attribute";
+        switch (
+            parseInt(oneformTicket.getAttribute(OFFICE_LIST_1_ATTRIBUTE_ID))
+        ) {
+
             case PATHWAY_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating Pathway Ticket");
-                departmentTicket = new PathwayTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating Pathway Ticket"
+                );
+                departmentTicket = new PathwayTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case ACCOUNTING_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating Accounting Ticket");
-                departmentTicket = new AccountingTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating Accounting Ticket"
+                );
+                departmentTicket = new AccountingTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case ADMISSIONS_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating Admissions Ticket");
-                departmentTicket = new AdmissionsTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating Admissions Ticket"
+                );
+                departmentTicket = new AdmissionsTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case ADVISING_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating Advising Ticket");
-                departmentTicket = new AdvisingTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating Advising Ticket"
+                );
+                departmentTicket = new AdvisingTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case GENERAL_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating General Ticket");
-                departmentTicket = new ByuiTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating General Ticket"
+                );
+                departmentTicket = new ByuiTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case ACADEMIC_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating Academic Ticket");
-                departmentTicket = new ByuiTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating Academic Ticket"
+                );
+                departmentTicket = new ByuiTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case FACILITIES_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating Facilities Ticket");
-                departmentTicket = new ByuiTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating Facilities Ticket"
+                );
+                departmentTicket = new ByuiTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case FINANCIAL_AID_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating Financial Aid Ticket");
-                departmentTicket = new FinancialAidTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating Financial Aid Ticket"
+                );
+                departmentTicket = new FinancialAidTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case IT_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating IT Ticket");
-                departmentTicket = new ByuiTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating IT Ticket"
+                );
+                departmentTicket = new ByuiTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case SRR_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating SRR Ticket");
-                departmentTicket = new SrrTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating SRR Ticket"
+                );
+                departmentTicket = new SrrTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             case UNIVERSITY_STORE_OFFICE_LIST_VAL:
-                debug.log("createDepartmentTicket", "Creating University Store Ticket");
-                departmentTicket = new ByuiTicket(debug.getHistory(), oneformTicket);
+                debug.log(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Creating University Store Ticket"
+                );
+                departmentTicket = new ByuiTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
                 break;
             default:
-                assert false : "The oneform ticket either has a new office list item which has not been added, or none is selected";
-                debug.logError("createDepartmentTicket", "Unable to find correct office. Using ByuiTicket as default");
-                departmentTicket = new ByuiTicket(debug.getHistory(), oneformTicket);
+                assert false : "The oneform ticket either has a new office " +
+                    "list item which has not been added, or none is selected";
+                debug.logError(
+                    this.getClass(),
+                    "createDepartmentTicket",
+                    "Unable to find correct office. Using ByuiTicket as default"
+                );
+                departmentTicket = new ByuiTicket(
+                    debug.getHistory(),
+                    oneformTicket
+                );
         }
+
+        // FIXME: Uncomment this code when you are ready to start uploading tickets.
+        // tickets.add(departmentTicket);
     }
 }
