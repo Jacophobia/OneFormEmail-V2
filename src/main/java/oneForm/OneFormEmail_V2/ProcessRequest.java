@@ -43,7 +43,7 @@ public class ProcessRequest extends TDRunnable {
     private TeamDynamix api;
     private OneformTicket oneformTicket;
     private DepartmentTicket departmentTicket;
-    private CountTicket countTicekt;
+    private CountTicket countTicket;
     private AndonTicket andonTicket;
     private LoggingSupervisor debug;
     private ArrayList<GeneralTicket> tickets = new ArrayList<>();
