@@ -1,12 +1,11 @@
 package oneForm.OneFormEmail_V2;
 
-import com.google.gson.Gson;
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
-import td.api.Ticket;
 
 public abstract class DepartmentTicket extends GeneralTicket {
     protected OneformTicket oneformTicket;
+    final int STATUS_3_ID = 21;
     public DepartmentTicket(History history, OneformTicket oneformTicket) {
         super(history);
 
@@ -17,8 +16,39 @@ public abstract class DepartmentTicket extends GeneralTicket {
 
     @Override
     public void prepareTicketUpload() throws TDException {
+        setRequiredAttributes();
+    }
+
+    protected void setRequiredAttributes() {
+        setTypeId(findTypeId()); // int
+        setTitle(findTitle()); // String
+        setFormId(findFormId()); // int
+        setAccountId(findAccountId()); // int
+        setStatusId(findStatusId()); // int
+        setPriorityId(findPriorityId()); // int
+        setRequestorUid(findRequestorUid()); // String
 
     }
+
+    abstract protected int findTypeId();
+
+    abstract protected int findStatusId();
+
+    abstract protected int findFormId();
+
+    private String findTitle() {
+        return oneformTicket.getTitle();
+    }
+
+    private int findAccountId(){
+        return oneformTicket.getAccountId();
+    }
+
+    private int findPriorityId() {
+        return STATUS_3_ID;
+    }
+
+    abstract protected String findRequestorUid();
 
     @Override
     public String toString() {
@@ -32,7 +62,7 @@ public abstract class DepartmentTicket extends GeneralTicket {
             "\n *  *    StatusId= " + getStatusId() +
             "\n *  *    PriorityId= " + getPriorityId() +
             "\n *  *    RequesterUID= " + getRequestorUid() +
-            "\n *       FormId= " + getFormId() +
+            "\n *  *    FormId= " + getFormId() +
             "\n *       Description= " + getDescription() +
             "\n *       SourceId= " + getSourceId() +
             "\n *       ImpactId= " + getImpactId() +
