@@ -14,7 +14,6 @@ public class RequestManager extends TDThreadManager {
     }
 
     public void addServiceRequest(
-            RequestCollector.ACTION_TAKEN ACTION,
             ProcessRequest request,
             History history,
             String threadName) throws InterruptedException {

@@ -40,6 +40,7 @@ public class ProcessRequest extends TDRunnable {
     // Main
     private TeamDynamix pull;
     private TeamDynamix push;
+    RequestCollector.ACTION_TAKEN ACTION;
     private OneformTicket oneformTicket;
     private DepartmentTicket departmentTicket;
     private CountTicket countTicket;
@@ -51,7 +52,7 @@ public class ProcessRequest extends TDRunnable {
     public static int oneFormTicketID;
 
 
-    public ProcessRequest(int ticketID) {
+    public ProcessRequest(int ticketID, RequestCollector.ACTION_TAKEN ACTION) {
         super(
             new TDLoggingManager(Settings.debug),
             new History(ResourceType.TICKET,
@@ -59,6 +60,7 @@ public class ProcessRequest extends TDRunnable {
         );
         debug = new LoggingSupervisor(this.history);
         oneFormTicketID = ticketID;
+        this.ACTION = ACTION;
 
         String sandboxExtension = "";
         if (Settings.sandbox)
@@ -104,12 +106,12 @@ public class ProcessRequest extends TDRunnable {
         debug.log(
             this.getClass(),
             "ProcessTicketRequest",
-            "Oneform Ticket Id: " +
-                oneformTicket.getId()
+            "Oneform Ticket Id: " + oneformTicket.getId()
         );
         createDepartmentTicket();
         sendCompletedTickets();
     }
+
     private void sendCompletedTickets() throws TDException {
         for (GeneralTicket ticket  : tickets) {
             if (Settings.displayTicketBodies)
@@ -118,14 +120,24 @@ public class ProcessRequest extends TDRunnable {
                     "ProcessTicketRequest",
                     "Uploading " + ticket.toString()
                 );
+            debug.log(
+                this.getClass(),
+                "sendCompletedTickets",
+                "Preparing Ticket for upload"
+            );
             ticket.prepareTicketUpload();
             push.createTicket(ticket.getApplicationID(), ticket);
+            debug.log(
+                this.getClass(),
+                "sendCompletedTickets",
+                "Ticket uploaded"
+            );
         }
 
         // Prepare and patch the oneform ticket to contain new data
         // about the department ticket.
         oneformTicket.prepareTicketUpload();
-        push.editTicket(false, oneformTicket);
+        pull.editTicket(false, oneformTicket);
     }
 
     private void retrieveOneFormTicket() throws TDException {
@@ -136,15 +148,16 @@ public class ProcessRequest extends TDRunnable {
         OneformTicket retrievedOneFormTicket = gson.fromJson(
             json, OneformTicket.class
         );
-        retrievedOneFormTicket.initializeTicket(debug.getHistory());
+        retrievedOneFormTicket.initializeTicket(debug.getHistory(), ACTION);
         this.oneformTicket = retrievedOneFormTicket;
+
     }
 
     private void createDepartmentTicket() throws TDException {
         assert oneformTicket.containsAttribute(OFFICE_LIST_1_ATTRIBUTE_ID) :
             "The oneform ticket does not contain the office list attribute";
         switch (
-            parseInt(oneformTicket.getAttribute(OFFICE_LIST_1_ATTRIBUTE_ID))
+            parseInt(oneformTicket.getCustomAttribute(OFFICE_LIST_1_ATTRIBUTE_ID))
         ) {
 
             case PATHWAY_OFFICE_LIST_VAL:
@@ -241,6 +254,7 @@ public class ProcessRequest extends TDRunnable {
                     "createDepartmentTicket",
                     "Creating IT Ticket"
                 );
+
                 departmentTicket = new ByuiTicket(
                     debug.getHistory(),
                     oneformTicket
@@ -282,7 +296,13 @@ public class ProcessRequest extends TDRunnable {
                 );
         }
 
-        // FIXME: Uncomment this code when you are ready to start uploading tickets.
-        // tickets.add(departmentTicket);
+        // TODO: Uncomment this code when you are ready to start uploading
+        //  tickets.
+        debug.log(
+            this.getClass(),
+            "createDepartmentTicket",
+            "Department ticket added to tickets"
+        );
+        tickets.add(departmentTicket);
     }
 }

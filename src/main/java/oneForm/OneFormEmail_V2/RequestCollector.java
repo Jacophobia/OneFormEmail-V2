@@ -38,10 +38,9 @@ public class RequestCollector {
     int sendEscalatedRequest(@RequestParam(value = "ticketID") int ticketID
             ) throws InterruptedException {
         requestManager.addServiceRequest(
-            ACTION_TAKEN.ESCALATED,
-            new ProcessRequest(ticketID),
+            new ProcessRequest(ticketID, ACTION_TAKEN.ESCALATED),
             history,
-            "Ticket ID: " + ticketID
+            "ESCL Ticket ID: " + ticketID
         );
 
         return 123;
@@ -52,10 +51,9 @@ public class RequestCollector {
     int sendResolvedRequest(@RequestParam(value = "ticketID") int ticketID
             ) throws InterruptedException {
         requestManager.addServiceRequest(
-            ACTION_TAKEN.RESOLVED,
-            new ProcessRequest(ticketID),
+            new ProcessRequest(ticketID, ACTION_TAKEN.RESOLVED),
             history,
-            "Ticket ID: " + ticketID
+            "RSLV Ticket ID: " + ticketID
         );
 
         return 123;
@@ -66,10 +64,9 @@ public class RequestCollector {
     int sendSpamRequest(@RequestParam(value = "ticketID") int ticketID
             ) throws InterruptedException {
         requestManager.addServiceRequest(
-            ACTION_TAKEN.SPAM,
-            new ProcessRequest(ticketID),
+            new ProcessRequest(ticketID, ACTION_TAKEN.SPAM),
             history,
-            "Ticket ID: " + ticketID
+            "SPAM Ticket ID: " + ticketID
         );
 
         return 123;
