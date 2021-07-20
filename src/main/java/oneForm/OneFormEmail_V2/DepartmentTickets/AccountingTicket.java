@@ -8,6 +8,7 @@ public class AccountingTicket extends DepartmentTicket {
 
     public AccountingTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
+
     }
 
 
