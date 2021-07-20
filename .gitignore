@@ -19,6 +19,8 @@
 *.zip
 *.tar.gz
 *.rar
+*.bin
+*.lock
 
 # gradle related files
 .gradle

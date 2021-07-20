@@ -3,7 +3,6 @@ package oneForm.OneFormEmail_V2;
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
-import td.api.TeamDynamix;
 import td.api.Ticket;
 
 import java.util.HashMap;
@@ -16,7 +15,7 @@ public abstract class GeneralTicket extends Ticket {
 
     public GeneralTicket(History history) {
         super();
-        initializeTicket(history);
+        this.initializeTicket(history);
     }
 
     public void setApplicationID(int applicationID) {
@@ -29,11 +28,11 @@ public abstract class GeneralTicket extends Ticket {
 
     public void initializeTicket(History history) {
         debug = new LoggingSupervisor(history);
-
         debug.log(
             this.getClass(),
             "initializeTicket",
-            "Beginning " + this.getClass().getSimpleName() + " Initialization");
+            "Beginning " + this.getClass().getSimpleName() + " Initialization"
+        );
 
         assert history != null :
             "The history from the parameters has not been initialized";
@@ -46,18 +45,26 @@ public abstract class GeneralTicket extends Ticket {
             assert attribute != null : "The attribute is empty";
             ticketAttributes.put(attribute.getId(), attribute.getValue());
         }
-        debug.log(this.getClass(), "Ticket Initialized.");
+        debug.log(
+            this.getClass(),
+            this.getClass().getSimpleName() + " Initialized."
+        );
     }
 
     abstract public void prepareTicketUpload() throws TDException;
 
-    public String getAttribute(int attributeID){
+    public String getCustomAttribute(int attributeID){
         assert ticketAttributes != null :
             "ticketAttributes has not been initialized";
         assert ticketAttributes.containsKey(attributeID) :
             "Error attribute not found.";
 
         return ticketAttributes.get(attributeID);
+    }
+
+    public void addCustomAttribute(int key, String value) {
+        this.getAttributes().add(new CustomAttribute(key, value));
+        ticketAttributes.put(key, value);
     }
 
     public boolean containsAttribute(int attributeID) {
@@ -68,36 +75,52 @@ public abstract class GeneralTicket extends Ticket {
 
     public String toString() {
         return
+            "\n      " + this.getClass() +
+            "\n" +
             "\n      *  - Editable" +
             "\n      *  *  - Editable and Required" +
             "\n" +
+            "\n      *  * TypeId : " + getTypeId() +
+            "\n      *  * Title : " + getTitle() +
+            "\n      *  * AccountId : " + getAccountId() +
+            "\n      *  * StatusId : " + getStatusId() +
+            "\n      *  * PriorityId : " + getPriorityId() +
+            "\n      *  * RequesterUID : " + getRequestorUid() +
+            "\n      * FormId : " + getFormId() +
+            "\n      * Description : " + getDescription() +
+            "\n      * SourceId : " + getSourceId() +
+            "\n      * ImpactId : " + getImpactId() +
+            "\n      * UrgencyId : " + getUrgencyId() +
+            "\n      * GoesOffHoldDate : " + getGoesOffHoldDate() +
+            "\n      * EstimatedMinutes : " + getEstimatedMinutes() +
+            "\n      * StartDate : " + getStartDate() +
+            "\n      * EndDate : " + getEndDate() +
+            "\n      * ResponsibleUID : " + getResponsibleUid() +
+            "\n      * ResponsibleGroupId : " + getResponsibleGroupId() +
+            "\n      * TimeBudget : " + getTimeBudget() +
+            "\n      * ExpensesBudget : " + getExpensesBudget() +
+            "\n      * LocationId : " + getLocationId() +
+            "\n      * LocationRoomId : " + getLocationRoomId() +
+            "\n      * ServiceId : " + getServiceId() +
+            "\n      * ServiceOfferingID : " +
+            "\n      * ArticleId : " + getArticleId() +
             "\n     TicketId : " + getId() +
             "\n     ParentId : " + getParentId() +
             "\n     ParentTitle : " + getParentTitle() +
             "\n     ParentClass : " + getParentClass() +
-            "\n      *  * TypeId : " + getTypeId() +
             "\n     TypeName : " + getTypeName() +
             "\n     TypeCategoryId : " + getTypeCategoryId() +
             "\n     TypeCategoryName : " + getTypeCategoryName() +
             "\n     Classification : " + getClassification() +
             "\n     ClassificationName : " + getClassificationName() +
-            "\n      * FormId : " + getFormId() +
             "\n     FormName : " + getFormName() +
-            "\n      *  * Title : " + getTitle() +
-            "\n      * Description : " + getDescription() +
             "\n     Uri : " + getUri() +
-            "\n      *  * AccountId : " + getAccountId() +
             "\n     AccountName : " + getAccountName() +
-            "\n      * SourceId : " + getSourceId() +
             "\n     SourceName : " + getSourceName() +
-            "\n      *  * StatusId : " + getStatusId() +
             "\n     StatusName : " + getStatusName() +
             "\n     StatusClass : " + getStatusClass() +
-            "\n      * ImpactId : " + getImpactId() +
             "\n     ImpactName : " + getImpactName() +
-            "\n      * UrgencyId : " + getUrgencyId() +
             "\n     UrgencyName : " + getUrgencyName() +
-            "\n      *  * PriorityId : " + getPriorityId() +
             "\n     PriorityName : " + getPriorityName() +
             "\n     PriorityOrder : " + getPriorityOrder() +
             "\n     SlaId : " + getSlaId() +
@@ -110,7 +133,6 @@ public abstract class GeneralTicket extends Ticket {
             "\n     SlaBeginDate : " + getSlaBeginDate() +
             "\n     OnHold : " + isOnHold() +
             "\n     PLacedOnHoldDate : " + getPlacedOnHoldDate() +
-            "\n      * GoesOffHoldDate : " + getGoesOffHoldDate() +
             "\n     CreatedDate : " + getCreatedDate() +
             "\n     CreatedUID : " + getCreatedUid() +
             "\n     CreatedFullName : " + getCreatedFullName() +
@@ -123,16 +145,10 @@ public abstract class GeneralTicket extends Ticket {
             "\n     RequesterLastName : " + getRequestorLastName() +
             "\n     RequesterEmail : " + getRequestorEmail() +
             "\n     RequesterPhone : " + getRequestorPhone() +
-            "\n      *  * RequesterUID : " + getRequestorUid() +
             "\n     ActualMinutes : " + getActualMinutes() +
-            "\n      * EstimatedMinutes : " + getEstimatedMinutes() +
             "\n     DaysOld : " + getDaysOld() +
-            "\n      * StartDate : " + getStartDate() +
-            "\n      * EndDate : " + getEndDate() +
-            "\n      * ResponsibleUID : " + getResponsibleUid() +
             "\n     ResponsibleFullName : " + getResponsibleFullName() +
             "\n     ResponsibleEmail : " + getResponsibleEmail() +
-            "\n      * ResponsibleGroupId : " + getResponsibleGroupId() +
             "\n     ResponsibleGroupName : " + getResponsibleGroupName() +
             "\n     RespondedDate : " + getRespondedDate() +
             "\n     RespondedUID : " + getRespondedUid() +
@@ -145,8 +161,6 @@ public abstract class GeneralTicket extends Ticket {
             "\n     ReviewerEmail : " + getReviewerEmail() +
             "\n     ReviewingGroupId : " + getReviewingGroupId() +
             "\n     ReviewingGroupName : " + getReviewingGroupName() +
-            "\n      * TimeBudget : " + getTimeBudget() +
-            "\n      * ExpensesBudget : " + getExpensesBudget() +
             "\n     TimeBudgetUsed : " + getTimeBudgetUsed() +
             "\n     ExpensesBudgetUsed : " + getExpensesBudgetUsed() +
             "\n     ConvertedToTask : " + isConvertedToTask() +
@@ -162,18 +176,13 @@ public abstract class GeneralTicket extends Ticket {
             "\n     TaskStartDate : " + getTaskStartDate() +
             "\n     TaskEndDate : " + getTaskEndDate() +
             "\n     TaskPercentComplete : " + getTaskPercentComplete() +
-            "\n      * LocationId : " + getLocationId() +
             "\n     LocationName : " + getLocationName() +
-            "\n      * LocationRoomId : " + getLocationRoomId() +
             "\n     LocationRoomName : " + getLocationRoomName() +
             "\n     RefCode : " + getRefCode() +
-            "\n      * ServiceId : " + getServiceId() +
             "\n     ServiceName : " + getServiceName() +
-            "\n      * ServiceOfferingID : " +
             "\n     ServiceOfferingName : " +
             "\n     ServiceCategoryId : " + getServiceCategoryId() +
             "\n     ServiceCategoryName : " + getServiceCategoryName() +
-            "\n      * ArticleId : " + getArticleId() +
             "\n     ArticleSubject : " + getArticleSubject() +
             "\n     ArticleStatus : " + getArticleStatus() +
             "\n     ArticleCategoryPathNames : " +getArticleCategoryPathNames()+
