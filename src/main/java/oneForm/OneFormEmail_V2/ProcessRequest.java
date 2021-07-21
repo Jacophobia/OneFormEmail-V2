@@ -10,6 +10,7 @@ import td.api.Logging.History;
 import td.api.Logging.TDLoggingManager;
 import td.api.MultiThreading.TDRunnable;
 import td.api.TeamDynamix;
+import td.api.Ticket;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -21,17 +22,17 @@ public class ProcessRequest extends TDRunnable {
     // Constants
     public static final int ONE_FORM_APPLICATION_ID = 48;
     public static final int OFFICE_LIST_1_ATTRIBUTE_ID = 10329;
-    public static final int ACADEMIC_OFFICE_LIST_VAL = 31724;
-    public static final int ACCOUNTING_OFFICE_LIST_VAL = 31723;
-    public static final int ADMISSIONS_OFFICE_LIST_VAL = 31725;
-    public static final int ADVISING_OFFICE_LIST_VAL = 31727;
-    public static final int FACILITIES_OFFICE_LIST_VAL = 31728;
-    public static final int FINANCIAL_AID_OFFICE_LIST_VAL = 31729;
-    public static final int GENERAL_OFFICE_LIST_VAL = 31730;
-    public static final int IT_OFFICE_LIST_VAL = 31732;
-    public static final int SRR_OFFICE_LIST_VAL = 31733;
-    public static final int UNIVERSITY_STORE_OFFICE_LIST_VAL = 31734;
-    public static final int PATHWAY_OFFICE_LIST_VAL = 36695;
+    public static final String ACADEMIC_OFFICE_LIST_VAL = "31724";
+    public static final String ACCOUNTING_OFFICE_LIST_VAL = "31723";
+    public static final String ADMISSIONS_OFFICE_LIST_VAL = "31725";
+    public static final String ADVISING_OFFICE_LIST_VAL = "31727";
+    public static final String FACILITIES_OFFICE_LIST_VAL = "31728";
+    public static final String FINANCIAL_AID_OFFICE_LIST_VAL = "31729";
+    public static final String GENERAL_OFFICE_LIST_VAL = "31730";
+    public static final String IT_OFFICE_LIST_VAL = "31732";
+    public static final String SRR_OFFICE_LIST_VAL = "31733";
+    public static final String UNIVERSITY_STORE_OFFICE_LIST_VAL = "31734";
+    public static final String PATHWAY_OFFICE_LIST_VAL = "36695";
 
     // Semaphores
     private Semaphore countTicketSemaphore;
@@ -126,11 +127,14 @@ public class ProcessRequest extends TDRunnable {
                 "Preparing Ticket for upload"
             );
             ticket.prepareTicketUpload();
-            push.createTicket(ticket.getApplicationID(), ticket);
+            Ticket uploadedTicket = push.createTicket(
+                ticket.getApplicationID(),
+                ticket
+            );
             debug.log(
                 this.getClass(),
                 "sendCompletedTickets",
-                "Ticket uploaded"
+                "Ticket uploaded. ID : " + uploadedTicket.getId()
             );
         }
 
@@ -156,9 +160,7 @@ public class ProcessRequest extends TDRunnable {
     private void createDepartmentTicket() throws TDException {
         assert oneformTicket.containsAttribute(OFFICE_LIST_1_ATTRIBUTE_ID) :
             "The oneform ticket does not contain the office list attribute";
-        switch (
-            parseInt(oneformTicket.getCustomAttribute(OFFICE_LIST_1_ATTRIBUTE_ID))
-        ) {
+        switch (oneformTicket.getCustomAttribute(OFFICE_LIST_1_ATTRIBUTE_ID)) {
 
             case PATHWAY_OFFICE_LIST_VAL:
                 debug.log(
@@ -295,9 +297,6 @@ public class ProcessRequest extends TDRunnable {
                     oneformTicket
                 );
         }
-
-        // TODO: Uncomment this code when you are ready to start uploading
-        //  tickets.
         debug.log(
             this.getClass(),
             "createDepartmentTicket",
