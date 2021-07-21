@@ -4,6 +4,8 @@ import td.api.Logging.History;
 import td.api.Logging.LoggingEvent;
 import td.api.Logging.TDLoggingManager;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 
 public class LoggingSupervisor {
@@ -96,11 +98,18 @@ public class LoggingSupervisor {
             Level.SEVERE)
         );
 
-        assert ProcessRequest.oneFormTicketID > 0 :
-            "The oneFormTicketID has not been initialized.";
+        assert history.getTitle() != null :
+            "The History's title has not been set.";
+
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat(
+            "MM-dd-yyyy HH:mm:ss"
+        );
+
         masterHistory.addEvent(new LoggingEvent(
-            message,
-            "" + ProcessRequest.oneFormTicketID,
+            "Error in " + history.getTitle() +
+            " at " + formatter.format(date),
+            history.getTitle(),
             currentClass,
             Level.SEVERE)
         );

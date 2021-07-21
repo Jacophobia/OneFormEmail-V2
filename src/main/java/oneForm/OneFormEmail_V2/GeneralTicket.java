@@ -11,7 +11,8 @@ import java.util.Map;
 public abstract class GeneralTicket extends Ticket {
     protected LoggingSupervisor debug;
     protected Map<Integer, String> ticketAttributes = new HashMap<>();
-    protected int applicationID;
+    protected Map<Integer, String> attributeChoiceText = new HashMap<>();
+    protected int applicationID = 0;
 
     public GeneralTicket(History history) {
         super();
@@ -28,7 +29,7 @@ public abstract class GeneralTicket extends Ticket {
 
     public void initializeTicket(History history) {
         debug = new LoggingSupervisor(history);
-        debug.log(
+        debug.logError(
             this.getClass(),
             "initializeTicket",
             "Beginning " + this.getClass().getSimpleName() + " Initialization"
@@ -40,10 +41,12 @@ public abstract class GeneralTicket extends Ticket {
             "The custom attributes could not be retrieved";
 
         this.ticketAttributes = new HashMap<>();
+        this.attributeChoiceText = new HashMap<>();
 
         for (CustomAttribute attribute : this.getAttributes()) {
             assert attribute != null : "The attribute is empty";
             ticketAttributes.put(attribute.getId(), attribute.getValue());
+            attributeChoiceText.put(attribute.getId(), attribute.getChoicesText());
         }
         debug.log(
             this.getClass(),
@@ -53,7 +56,7 @@ public abstract class GeneralTicket extends Ticket {
 
     abstract public void prepareTicketUpload() throws TDException;
 
-    public String getCustomAttribute(int attributeID){
+    public String getCustomAttribute(int attributeID) {
         assert ticketAttributes != null :
             "ticketAttributes has not been initialized";
         assert ticketAttributes.containsKey(attributeID) :
@@ -62,9 +65,20 @@ public abstract class GeneralTicket extends Ticket {
         return ticketAttributes.get(attributeID);
     }
 
+    public String getAttributeText(int attributeID) {
+        assert ticketAttributes != null :
+            "ticketAttributes has not been initialized";
+        assert ticketAttributes.containsKey(attributeID) :
+            "Error attribute not found.";
+
+        return attributeChoiceText.get(attributeID);
+    }
+
     public void addCustomAttribute(int key, String value) {
-        this.getAttributes().add(new CustomAttribute(key, value));
-        ticketAttributes.put(key, value);
+        CustomAttribute newAttribute = new CustomAttribute(key, value);
+        this.getAttributes().add(newAttribute);
+        ticketAttributes.put(key, newAttribute.getValue());
+        attributeChoiceText.put(key, newAttribute.getChoicesText());
     }
 
     public boolean containsAttribute(int attributeID) {

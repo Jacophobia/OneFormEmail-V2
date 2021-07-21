@@ -11,6 +11,8 @@ public class ByuiTicket extends DepartmentTicket {
     private final int STATUS_CLOSED = 200;
     private final int STATUS_NEW = 196;
 
+    private final int TAG_ID = 10945;
+
 
     public ByuiTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
@@ -62,6 +64,15 @@ public class ByuiTicket extends DepartmentTicket {
             return "d36a035f-50e7-e311-80cc-005056ac5ec6";
         }
         return this.oneformTicket.getRequestorUid();
+    }
+
+    @Override
+    protected void setDepartmentSpecificAttributes() {
+        this.addCustomAttribute(TAG_ID, findTagValue());
+    }
+
+    private String findTagValue() {
+        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
     }
 
 

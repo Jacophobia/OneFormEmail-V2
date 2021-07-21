@@ -10,6 +10,24 @@ public class SrrTicket extends DepartmentTicket {
     private final int STATUS_CLOSED = 424;
     private final int STATUS_NEW = 420;
 
+    private final int TAG_ID = 10948;
+
+    private final int    ONLINE_OR_CAMPUS_ID = 9829;
+    private final String ON_CAMPUS_ID = "30087";
+    private final String ONLINE_ID = "30088";
+
+    private final int    ONEFORM_ONLINE_OR_CAMPUS_ID = 11044;
+    private final String ONEFORM_ON_CAMPUS_ID = "34478";
+    private final String ONEFORM_ONLINE_ID = "34479";
+
+    private final int    ONLINE_FILLED_ID = 9851;
+    private final String ONLINE_FILLED_YES_ID = "30163";
+    private final String ONLINE_FILLED_NO_ID = "30164";
+
+    private final int    ONEFORM_ONLINE_FILLED_ID = 11045;
+    private final String ONEFORM_ONLINE_FILLED_YES_ID = "34480";
+    private final String ONEFORM_ONLINE_FILLED_NO_ID = "34481";
+
     public SrrTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
         applicationID = SRR_APP_ID;
@@ -45,5 +63,40 @@ public class SrrTicket extends DepartmentTicket {
         return FORM_ID;
     }
 
+    @Override
+    protected void setDepartmentSpecificAttributes() {
+        if (findOnlineOrCampus() != null) {
+            this.addCustomAttribute(ONLINE_OR_CAMPUS_ID, findOnlineOrCampus());
+            this.addCustomAttribute(ONLINE_FILLED_ID, findOnlineFilled());
+        }
+        this.addCustomAttribute(TAG_ID, findTagValue());
+    }
 
+    private String findOnlineOrCampus() {
+        switch (oneformTicket.getCustomAttribute(ONEFORM_ONLINE_OR_CAMPUS_ID)) {
+            case ONEFORM_ON_CAMPUS_ID:
+                return ON_CAMPUS_ID;
+            case ONEFORM_ONLINE_ID:
+                return ONLINE_ID;
+            default:
+                return null;
+        }
+    }
+
+    private String findOnlineFilled() {
+        switch (oneformTicket.getCustomAttribute(ONEFORM_ONLINE_FILLED_ID)) {
+            case ONEFORM_ONLINE_FILLED_YES_ID:
+                return ONLINE_FILLED_YES_ID;
+            case ONEFORM_ONLINE_FILLED_NO_ID:
+                return ONLINE_FILLED_NO_ID;
+            default:
+                assert false :
+                    "There is an uncaught case in this switch statement";
+                return ONLINE_FILLED_YES_ID;
+        }
+    }
+
+    private String findTagValue() {
+        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
+    }
 }

@@ -10,6 +10,8 @@ public class AccountingTicket extends DepartmentTicket {
     private final int STATUS_CLOSED = 417;
     private final int STATUS_NEW = 413;
 
+    private final int TAG_ID = 10944;
+
     public AccountingTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
         applicationID = ACCOUNTING_APP_ID;
@@ -34,6 +36,15 @@ public class AccountingTicket extends DepartmentTicket {
     @Override
     protected int findFormId() {
         return FORM_ID;
+    }
+
+    @Override
+    protected void setDepartmentSpecificAttributes() {
+        this.addCustomAttribute(TAG_ID, findTagValue());
+    }
+
+    private String findTagValue() {
+        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
     }
 
 

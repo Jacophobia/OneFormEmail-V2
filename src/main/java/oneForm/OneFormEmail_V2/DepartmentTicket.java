@@ -5,15 +5,20 @@ import td.api.Logging.History;
 
 public abstract class DepartmentTicket extends GeneralTicket {
     protected OneformTicket oneformTicket;
+
     private final int STATUS_3_ID = 21;
+
     protected final int EMAIL_ACTIONS_ATTR = 11398;
     protected final String EMAIL_ACTIONS_CHOICE_ESCALATE = "35388";
+
     protected final int FINANCIAL_AID_APP_ID = 53;
     protected final int ACCOUNTING_APP_ID = 54;
     protected final int ADMISSIONS_APP_ID = 52;
     protected final int ADVISING_APP_ID = 56;
     protected final int BYUI_TICKETS_APP_ID = 40;
     protected final int SRR_APP_ID = 55;
+
+    protected final int ONEFORM_TAG_ID = 10333;
 
 
     public DepartmentTicket(History history, OneformTicket oneformTicket) {
@@ -28,6 +33,7 @@ public abstract class DepartmentTicket extends GeneralTicket {
     public void prepareTicketUpload() throws TDException {
         setRequiredAttributes();
         setAdditionalAttributes();
+        setDepartmentSpecificAttributes();
     }
 
     private void setRequiredAttributes() {
@@ -49,7 +55,6 @@ public abstract class DepartmentTicket extends GeneralTicket {
     // These attributes need to be included in the upload or Teamdynamix
     // will reject our request to create the ticket.
     //
-
     abstract protected int findTypeId();
     abstract protected int findStatusId();
     abstract protected int findFormId();
@@ -100,11 +105,20 @@ public abstract class DepartmentTicket extends GeneralTicket {
     // Additional Attributes:
     // These attributes are not required to upload the ticket, but give
     // context to the ticket so that those who view them understand the
-    // incident which was recorded in the oneform ticket.
+    // incident which was recorded in the OneForm ticket.
     //
     private String findDescription() {
         return oneformTicket.getDescription();
     }
+
+    //
+    // Department Specific Attributes:
+    // These attributes are not required to upload the ticket, but are
+    // required by the department whose application they will be saved
+    // in.
+    //
+    abstract protected void setDepartmentSpecificAttributes();
+
     /**
      * If you ever want to view the contents of a department ticket for
      * debugging purposes, you can either use

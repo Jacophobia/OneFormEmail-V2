@@ -49,7 +49,7 @@ public class ProcessRequest extends TDRunnable {
     private ArrayList<GeneralTicket> tickets = new ArrayList<>();
 
     // Other
-    public static int oneFormTicketID;
+    private int oneFormTicketID;
 
 
     public ProcessRequest(int ticketID, RequestCollector.ACTION_TAKEN ACTION) {

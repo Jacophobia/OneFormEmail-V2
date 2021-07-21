@@ -37,9 +37,12 @@ public class PathwayTicket extends DepartmentTicket {
     private final int SRR_STATUS_CLOSED = 424;
     private final int SRR_STATUS_NEW = 420;
 
-
-    // Which tag did the user select?
-    private final int ONEFORM_TAG_ID = 10333;
+    private final int ACCOUNTING_TAG_ID = 10944;
+    private final int BYUI_TICKETS_TAG_ID = 10945;
+    private final int ADMISSIONS_TAG_ID = 10946;
+    private final int FINANCIAL_AID_TAG_ID = 10947;
+    private final int SRR_TAG_ID = 10948;
+    private final int ADVISING_TAG_ID = 11602;
 
     private final String TAG_ADVISING = "36696";
     private final String TAG_APPLICATION_QUESTIONS = "36697";
@@ -60,23 +63,33 @@ public class PathwayTicket extends DepartmentTicket {
         switch (this.oneformTicket.getCustomAttribute(ONEFORM_TAG_ID)) {
             case TAG_ADVISING:
                 applicationID = ADVISING_APP_ID;
+                break;
             case TAG_APPLICATION_QUESTIONS:
                 applicationID = ADMISSIONS_APP_ID;
+                break;
             case TAG_COMPLAINTS_GRIEVANCES:
                 applicationID = BYUI_TICKETS_APP_ID;
+                break;
             case TAG_CHARGES_PAYMENTS:
                 applicationID = ACCOUNTING_APP_ID;
+                break;
             case TAG_FINANCIAL_AID:
                 applicationID = FINANCIAL_AID_APP_ID;
+                break;
             case TAG_TECHNICAL_ISSUES:
                 applicationID = BYUI_TICKETS_APP_ID;
+                break;
             case TAG_REGISTRATION_ISSUES:
                 applicationID = SRR_APP_ID;
+                break;
             case TAG_ALL_OTHER_QUESTIONS:
                 applicationID = BYUI_TICKETS_APP_ID;
+                break;
             default:
                 assert false :
-                    "There is an uncaught case in this switch statement.";
+                    "There is an uncaught case in this switch statement. " +
+                    "Attribute: " +
+                    this.oneformTicket.getCustomAttribute(ONEFORM_TAG_ID);
                 applicationID = BYUI_TICKETS_APP_ID;
         }
 
@@ -84,6 +97,8 @@ public class PathwayTicket extends DepartmentTicket {
 
     @Override
     protected int findTypeId() {
+        assert this.applicationID != 0 :
+            "The applicationID attribute has not been initialized";
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
                 return ACCOUNTING_TYPE_ID;
@@ -106,6 +121,8 @@ public class PathwayTicket extends DepartmentTicket {
 
     @Override
     protected int findStatusId() {
+        assert this.applicationID != 0 :
+            "The applicationID attribute has not been initialized";
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
                 return getAccountingStatusID();
@@ -210,6 +227,8 @@ public class PathwayTicket extends DepartmentTicket {
 
     @Override
     protected int findFormId() {
+        assert this.applicationID != 0 :
+            "The applicationID attribute has not been initialized";
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
                 return ACCOUNTING_FORM_ID;
@@ -228,6 +247,11 @@ public class PathwayTicket extends DepartmentTicket {
                     "There is an uncaught case in this switch statement.";
                 return BYUI_TICKETS_FORM_ID;
         }
+    }
+
+    @Override
+    protected void setDepartmentSpecificAttributes() {
+
     }
 
 }
