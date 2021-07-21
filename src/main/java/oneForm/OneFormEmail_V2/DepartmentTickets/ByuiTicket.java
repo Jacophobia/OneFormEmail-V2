@@ -22,15 +22,27 @@ public class ByuiTicket extends DepartmentTicket {
         return TYPE_ID;
     }
 
+    /**
+     * At the moment, there are no departments using any of the
+     * department tickets being housed in the BYUI-Tickets Application,
+     * so the program will always close the tickets. If this changes, be
+     * sure to uncomment the code below and search for the specific
+     * condition where it will need to be given a status of new. If you
+     * make any changes to the code below, be sure to make those changes
+     * in the getByuiTicketStatus function in the PathwayTicket class.
+     * @return The status of a ticket housed in the BYUI-Tickets
+     * application.
+     */
     @Override
     protected int findStatusId() {
-        String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
-        if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
-            return STATUS_NEW;
-        }
-        else {
-            return STATUS_CLOSED;
-        }
+        return STATUS_CLOSED;
+        // String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
+        // if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+        //     return STATUS_NEW;
+        // }
+        // else {
+        //     return STATUS_CLOSED;
+        // }
     }
 
     @Override

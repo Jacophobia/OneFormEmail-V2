@@ -27,9 +27,10 @@ public abstract class DepartmentTicket extends GeneralTicket {
     @Override
     public void prepareTicketUpload() throws TDException {
         setRequiredAttributes();
+        setAdditionalAttributes();
     }
 
-    protected void setRequiredAttributes() {
+    private void setRequiredAttributes() {
         setTypeId(findTypeId()); // int
         setTitle(findTitle()); // String
         setFormId(findFormId()); // int
@@ -37,33 +38,88 @@ public abstract class DepartmentTicket extends GeneralTicket {
         setStatusId(findStatusId()); // int
         setPriorityId(findPriorityId()); // int
         setRequestorUid(findRequestorUid()); // String
-
     }
 
+    private void setAdditionalAttributes() {
+        setDescription(findDescription());
+    }
+
+    //
+    // Required Attributes:
+    // These attributes need to be included in the upload or Teamdynamix
+    // will reject our request to create the ticket.
+    //
+
     abstract protected int findTypeId();
-
     abstract protected int findStatusId();
-
     abstract protected int findFormId();
 
+    /**
+     * The Title is always the same as the OneForm ticket's title, so we
+     * don't need to add functionality for each of the individual
+     * department tickets.
+     * @return The title of the new ticket based on the title of the
+     * OneForm ticket.
+     */
     private String findTitle() {
         return oneformTicket.getTitle();
     }
 
+    /**
+     * The Account ID is always the same as the OneForm ticket's Account
+     * ID, so we don't need to add functionality for each of the
+     * individual department tickets.
+     * @return The Account ID of the new ticket based on the Account ID
+     * of the OneForm ticket.
+     */
     private int findAccountId(){
         return oneformTicket.getAccountId();
     }
 
+    /**
+     * The Priority ID is always going to be the same for every
+     * department ticket created.
+     * @return The ID for a priority level of 3
+     */
     private int findPriorityId() {
         return STATUS_3_ID;
     }
 
+    /**
+     * The Requester is always the same as the OneForm ticket's
+     * Requester, so we don't need to add functionality for each of the
+     * individual department tickets.
+     * @return The Requester UID of the new ticket based on the
+     * Requester UID of the OneForm ticket.
+     */
     protected String findRequestorUid() {
-        // TODO: Add functionality for when it is a Health Center
-        //  Contact (see line 350 - 360 requiredInfoGets)
         return oneformTicket.getRequestorUid();
     }
 
+    //
+    // Additional Attributes:
+    // These attributes are not required to upload the ticket, but give
+    // context to the ticket so that those who view them understand the
+    // incident which was recorded in the oneform ticket.
+    //
+    private String findDescription() {
+        return oneformTicket.getDescription();
+    }
+    /**
+     * If you ever want to view the contents of a department ticket for
+     * debugging purposes, you can either use
+     * departmentTicket'sName.toString() or
+     * System.out.println(departmentTicket'sName).
+     *
+     * This function overrides the built in toString function that every
+     * class has so that department tickets display their contents when
+     * printed rather than their location in memory.
+     *
+     * I have already built in functionality that does this, so if you
+     * want to display the ticket bodies right before upload, go into
+     * the settings class and set the DisplayTicketBodies value to true.
+     * @return The contents of the Department Ticket
+     */
     @Override
     public String toString() {
         return

@@ -20,15 +20,24 @@ public class SrrTicket extends DepartmentTicket {
         return TYPE_ID;
     }
 
+    /**
+     * Since Srr Does not work in Teamdynamix, their tickets will always
+     * be closed. If this ever changes you can uncomment the code below
+     * and delete the return statement at the beginning so that tickets
+     * created in SRR are viewable in a work-list. Be sure to also
+     * make this change in the PathwayTicket class.
+     * @return the status of the SRR department ticket
+     */
     @Override
     protected int findStatusId() {
-        String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
-        if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
-            return STATUS_NEW;
-        }
-        else {
-            return STATUS_CLOSED;
-        }
+        return STATUS_CLOSED;
+        // String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
+        // if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+        //     return STATUS_NEW;
+        // }
+        // else {
+        //     return STATUS_CLOSED;
+        // }
     }
 
     @Override
