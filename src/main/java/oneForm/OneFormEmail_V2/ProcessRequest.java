@@ -41,7 +41,7 @@ public class ProcessRequest extends TDRunnable {
     // Main
     private TeamDynamix pull;
     private TeamDynamix push;
-    RequestCollector.ACTION_TAKEN ACTION;
+    RequestCollector.ACTION_REQUESTED ACTION;
     private OneformTicket oneformTicket;
     private DepartmentTicket departmentTicket;
     private CountTicket countTicket;
@@ -53,7 +53,7 @@ public class ProcessRequest extends TDRunnable {
     private int oneFormTicketID;
 
 
-    public ProcessRequest(int ticketID, RequestCollector.ACTION_TAKEN ACTION) {
+    public ProcessRequest(int ticketID, RequestCollector.ACTION_REQUESTED ACTION) {
         super(
             new TDLoggingManager(Settings.debug),
             new History(ResourceType.TICKET,

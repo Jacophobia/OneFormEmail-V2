@@ -3,7 +3,7 @@ package oneForm.OneFormEmail_V2;
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
 
-import static oneForm.OneFormEmail_V2.RequestCollector.ACTION_TAKEN.*;
+import static oneForm.OneFormEmail_V2.RequestCollector.ACTION_REQUESTED.*;
 
 public class OneformTicket extends GeneralTicket {
     protected final int EMAIL_ACTIONS_ATTR = 11398;
@@ -15,7 +15,7 @@ public class OneformTicket extends GeneralTicket {
     }
 
     public void initializeTicket(History history,
-                                 RequestCollector.ACTION_TAKEN ACTION) {
+                                 RequestCollector.ACTION_REQUESTED ACTION) {
         super.initializeTicket(history);
         if (ACTION == ESCALATED) {
             this.addCustomAttribute(
