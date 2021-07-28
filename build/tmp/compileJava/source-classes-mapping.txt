@@ -34,4 +34,4 @@ oneForm/OneFormEmail_V2/LoggingSupervisor.java
  oneForm.OneFormEmail_V2.LoggingSupervisor
 oneForm/OneFormEmail_V2/RequestCollector.java
  oneForm.OneFormEmail_V2.RequestCollector
- oneForm.OneFormEmail_V2.RequestCollector$ACTION_TAKEN
+ oneForm.OneFormEmail_V2.RequestCollector$ACTION_REQUESTED

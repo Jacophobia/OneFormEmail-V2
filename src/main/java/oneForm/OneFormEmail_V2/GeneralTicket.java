@@ -3,6 +3,7 @@ package oneForm.OneFormEmail_V2;
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
+import td.api.TeamDynamix;
 import td.api.Ticket;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public abstract class GeneralTicket extends Ticket {
 
     public void initializeTicket(History history) {
         debug = new LoggingSupervisor(history);
-        debug.logError(
+        debug.log(
             this.getClass(),
             "initializeTicket",
             "Beginning " + this.getClass().getSimpleName() + " Initialization"
@@ -46,7 +47,10 @@ public abstract class GeneralTicket extends Ticket {
         for (CustomAttribute attribute : this.getAttributes()) {
             assert attribute != null : "The attribute is empty";
             ticketAttributes.put(attribute.getId(), attribute.getValue());
-            attributeChoiceText.put(attribute.getId(), attribute.getChoicesText());
+            attributeChoiceText.put(
+                attribute.getId(),
+                attribute.getChoicesText()
+            );
         }
         debug.log(
             this.getClass(),

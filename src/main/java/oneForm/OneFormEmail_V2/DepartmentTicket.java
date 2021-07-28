@@ -2,9 +2,11 @@ package oneForm.OneFormEmail_V2;
 
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
+import td.api.Ticket;
 
 public abstract class DepartmentTicket extends GeneralTicket {
     protected OneformTicket oneformTicket;
+    protected Ticket createdTicket;
 
     private final int STATUS_3_ID = 21;
 
@@ -19,6 +21,8 @@ public abstract class DepartmentTicket extends GeneralTicket {
     protected final int SRR_APP_ID = 55;
 
     protected final int ONEFORM_TAG_ID = 10333;
+    protected final int SUPPORT_CENTER_LOCATION_ID = 1;
+    protected final int EMAIL_SOURCE_ID = 6;
 
 
     public DepartmentTicket(History history, OneformTicket oneformTicket) {
@@ -30,12 +34,29 @@ public abstract class DepartmentTicket extends GeneralTicket {
     }
 
     @Override
+    public int getId() {
+        if (this.createdTicket == null) {
+            return super.getId();
+        }
+        return createdTicket.getId();
+    }
+
+    public void setCreatedTicket(Ticket createdTicket) {
+        this.createdTicket = createdTicket;
+    }
+
+    @Override
     public void prepareTicketUpload() throws TDException {
         setRequiredAttributes();
         setAdditionalAttributes();
         setDepartmentSpecificAttributes();
     }
 
+    /**
+     * Required Attributes:
+     * These attributes need to be included in the upload or Teamdynamix
+     * will reject our request to create the ticket.
+     */
     private void setRequiredAttributes() {
         setTypeId(findTypeId()); // int
         setTitle(findTitle()); // String
@@ -46,8 +67,16 @@ public abstract class DepartmentTicket extends GeneralTicket {
         setRequestorUid(findRequestorUid()); // String
     }
 
+    /**
+     * Additional Attributes:
+     * These attributes are not required to upload the ticket, but give
+     * context to the ticket so that those who view them understand the
+     * incident which was recorded in the OneForm ticket.
+     */
     private void setAdditionalAttributes() {
         setDescription(findDescription());
+        setSourceId(findSourceId());
+        setLocationId(findLocationId());
     }
 
     //
@@ -111,12 +140,20 @@ public abstract class DepartmentTicket extends GeneralTicket {
         return oneformTicket.getDescription();
     }
 
-    //
-    // Department Specific Attributes:
-    // These attributes are not required to upload the ticket, but are
-    // required by the department whose application they will be saved
-    // in.
-    //
+    private int findLocationId() {
+        return SUPPORT_CENTER_LOCATION_ID;
+    }
+
+    private int findSourceId() {
+        return EMAIL_SOURCE_ID;
+    }
+
+    /**
+     * Department Specific Attributes:
+     * These attributes are not required to upload the ticket, but are
+     * required by the department whose application they will be saved
+     * in.
+     */
     abstract protected void setDepartmentSpecificAttributes();
 
     /**

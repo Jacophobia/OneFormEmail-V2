@@ -12,6 +12,14 @@ public class FinancialAidTicket extends DepartmentTicket {
     private final int LAST_NAME_INITIAL = 3276;
     private final int TAG_ID = 10947;
 
+    private final int ONE_FORM_TICKETID_TAG = 11016;
+
+    private final int BSC_AGENT_NAME = 5523;
+
+    private final int    SENT_TO_LEVEL_2 = 3275;
+    private final String SENT_TO_LEVEL_2_YES = "12507";
+    private final String SENT_TO_LEVEL_2_NO = "12508";
+
     public FinancialAidTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
         applicationID = FINANCIAL_AID_APP_ID;
@@ -42,10 +50,29 @@ public class FinancialAidTicket extends DepartmentTicket {
     protected void setDepartmentSpecificAttributes() {
         this.addCustomAttribute(LAST_NAME_INITIAL, findLastNameInitialID());
         this.addCustomAttribute(TAG_ID, findTagValue());
+        this.addCustomAttribute(
+            ONE_FORM_TICKETID_TAG,
+            String.valueOf(oneformTicket.getId())
+        );
+        this.addCustomAttribute(
+            BSC_AGENT_NAME,
+            oneformTicket.getAgentName()
+        );
+        this.addCustomAttribute(SENT_TO_LEVEL_2, findEscalatedValue());
     }
 
     private String findTagValue() {
         return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
+    }
+
+    private String findEscalatedValue() {
+        String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
+        if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+            return SENT_TO_LEVEL_2_YES;
+        }
+        else {
+            return SENT_TO_LEVEL_2_NO;
+        }
     }
 
     private String findLastNameInitialID() {

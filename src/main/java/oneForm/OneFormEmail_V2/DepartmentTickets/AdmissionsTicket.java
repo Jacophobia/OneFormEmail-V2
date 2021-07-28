@@ -22,6 +22,13 @@ public class AdmissionsTicket extends DepartmentTicket {
     private final String OVERRIDE_NO = "22636";
     private final String OVERRIDE_DOESNT_NEED = "32854";
 
+    private final int ONE_FORM_TICKETID_TAG = 11014;
+
+    private final int BSC_AGENT_NAME = 5871;
+
+    private final int    SENT_TO_LEVEL_2 = 5183;
+    private final String SENT_TO_LEVEL_2_YES = "15672";
+    private final String SENT_TO_LEVEL_2_NO = "15673";
 
     public AdmissionsTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
@@ -53,10 +60,29 @@ public class AdmissionsTicket extends DepartmentTicket {
     protected void setDepartmentSpecificAttributes() {
         this.addCustomAttribute(OVERRIDE_ID, findOverrideEmailID());
         this.addCustomAttribute(TAG_ID, findTagValue());
+        this.addCustomAttribute(
+            ONE_FORM_TICKETID_TAG,
+            String.valueOf(oneformTicket.getId())
+        );
+        this.addCustomAttribute(
+            BSC_AGENT_NAME,
+            oneformTicket.getAgentName()
+        );
+        this.addCustomAttribute(SENT_TO_LEVEL_2, findEscalatedValue());
     }
 
     private String findTagValue() {
         return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
+    }
+
+    private String findEscalatedValue() {
+        String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
+        if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+            return SENT_TO_LEVEL_2_YES;
+        }
+        else {
+            return SENT_TO_LEVEL_2_NO;
+        }
     }
 
     private String findOverrideEmailID() {

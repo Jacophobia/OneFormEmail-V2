@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import static java.lang.Integer.parseInt;
+import static oneForm.OneFormEmail_V2.RequestCollector.*;
 
 
 public class ProcessRequest extends TDRunnable {
@@ -39,8 +40,8 @@ public class ProcessRequest extends TDRunnable {
     private Semaphore andonTicketSemaphore;
 
     // Main
-    private TeamDynamix pull;
-    private TeamDynamix push;
+    public static TeamDynamix pull;
+    public static TeamDynamix push;
     RequestCollector.ACTION_REQUESTED ACTION;
     private OneformTicket oneformTicket;
     private DepartmentTicket departmentTicket;
@@ -53,7 +54,7 @@ public class ProcessRequest extends TDRunnable {
     private int oneFormTicketID;
 
 
-    public ProcessRequest(int ticketID, RequestCollector.ACTION_REQUESTED ACTION) {
+    public ProcessRequest(int ticketID, ACTION_REQUESTED ACTION) {
         super(
             new TDLoggingManager(Settings.debug),
             new History(ResourceType.TICKET,
@@ -111,38 +112,9 @@ public class ProcessRequest extends TDRunnable {
         );
         createDepartmentTicket();
         sendCompletedTickets();
+        makeFinalChanges();
     }
 
-    private void sendCompletedTickets() throws TDException {
-        for (GeneralTicket ticket  : tickets) {
-            if (Settings.displayTicketBodies)
-                debug.log(
-                    this.getClass(),
-                    "ProcessTicketRequest",
-                    "Uploading " + ticket.toString()
-                );
-            debug.log(
-                this.getClass(),
-                "sendCompletedTickets",
-                "Preparing Ticket for upload"
-            );
-            ticket.prepareTicketUpload();
-            Ticket uploadedTicket = push.createTicket(
-                ticket.getApplicationID(),
-                ticket
-            );
-            debug.log(
-                this.getClass(),
-                "sendCompletedTickets",
-                "Ticket uploaded. ID : " + uploadedTicket.getId()
-            );
-        }
-
-        // Prepare and patch the oneform ticket to contain new data
-        // about the department ticket.
-        oneformTicket.prepareTicketUpload();
-        pull.editTicket(false, oneformTicket);
-    }
 
     private void retrieveOneFormTicket() throws TDException {
         Gson gson = new Gson();
@@ -303,5 +275,43 @@ public class ProcessRequest extends TDRunnable {
             "Department ticket added to tickets"
         );
         tickets.add(departmentTicket);
+    }
+
+    private void sendCompletedTickets() throws TDException {
+        for (GeneralTicket ticket  : tickets) {
+            if (Settings.displayTicketBodies)
+                debug.log(
+                    this.getClass(),
+                    "ProcessTicketRequest",
+                    "Uploading " + ticket.toString()
+                );
+            debug.log(
+                this.getClass(),
+                "sendCompletedTickets",
+                "Preparing Ticket for upload"
+            );
+            ticket.prepareTicketUpload();
+            Ticket uploadedTicket = push.createTicket(
+                ticket.getApplicationID(),
+                ticket
+            );
+
+            departmentTicket.setCreatedTicket(uploadedTicket);
+            
+            debug.log(
+                this.getClass(),
+                "sendCompletedTickets",
+                "Ticket uploaded. ID : " + departmentTicket.getId()
+            );
+        }
+
+        // Prepare and patch the oneform ticket to contain new data
+        // about the department ticket.
+        oneformTicket.prepareTicketUpload();
+        pull.editTicket(false, oneformTicket);
+    }
+
+    private void makeFinalChanges() {
+
     }
 }

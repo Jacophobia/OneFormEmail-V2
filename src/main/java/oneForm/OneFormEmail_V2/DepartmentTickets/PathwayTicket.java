@@ -53,6 +53,44 @@ public class PathwayTicket extends DepartmentTicket {
     private final String TAG_REGISTRATION_ISSUES = "36702";
     private final String TAG_ALL_OTHER_QUESTIONS = "36703";
 
+    private final int ACCOUNTING_ONE_FORM_TICKETID_TAG = 11013;
+    private final int BYUI_TICKETS_ONE_FORM_TICKETID_TAG = 11015;
+    private final int ADMISSIONS_ONE_FORM_TICKETID_TAG = 11014;
+    private final int FINANCIAL_AID_ONE_FORM_TICKETID_TAG = 11016;
+    private final int SRR_ONE_FORM_TICKETID_TAG = 11017;
+    private final int ADVISING_ONE_FORM_TICKETID_TAG = 11601;
+
+    private final int ACCOUNTING_BSC_AGENT_NAME = 5514;
+    private final int BYUI_TICKETS_BSC_AGENT_NAME = 5520;
+    private final int ADMISSIONS_BSC_AGENT_NAME = 5871;
+    private final int FINANCIAL_AID_BSC_AGENT_NAME = 5523;
+    private final int SRR_BSC_AGENT_NAME = 5533;
+    private final int ADVISING_BSC_AGENT_NAME = 11603;
+
+    private final int ACCOUNTING_SENT_TO_LEVEL_2 = 3290;
+    private final String ACCOUNTING_SENT_TO_LEVEL_2_YES = "12813";
+    private final String ACCOUNTING_SENT_TO_LEVEL_2_NO = "12814";
+
+    private final int ADMISSIONS_SENT_TO_LEVEL_2 = 5183;
+    private final String ADMISSIONS_SENT_TO_LEVEL_2_YES = "15672";
+    private final String ADMISSIONS_SENT_TO_LEVEL_2_NO = "15673";
+
+    private final int ADVISING_SENT_TO_LEVEL_2 = 11600;
+    private final String ADVISING_SENT_TO_LEVEL_2_YES = "36274";
+    private final String ADVISING_SENT_TO_LEVEL_2_NO = "36275";
+
+    private final int GENERAL_SENT_TO_LEVEL_2 = 2281;
+    private final String GENERAL_SENT_TO_LEVEL_2_YES = "5919";
+    private final String GENERAL_SENT_TO_LEVEL_2_NO = "5920";
+
+    private final int FINANCIAL_AID_SENT_TO_LEVEL_2 = 3275;
+    private final String FINANCIAL_AID_SENT_TO_LEVEL_2_YES = "12507";
+    private final String FINANCIAL_AID_SENT_TO_LEVEL_2_NO = "12508";
+
+    private final int SRR_SENT_TO_LEVEL_2 = 5467;
+    private final String SRR_SENT_TO_LEVEL_2_YES = "15872";
+    private final String SRR_SENT_TO_LEVEL_2_NO = "15873";
+
     public PathwayTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
         // If you need to add a tag to the list of available pathway
@@ -251,7 +289,77 @@ public class PathwayTicket extends DepartmentTicket {
 
     @Override
     protected void setDepartmentSpecificAttributes() {
+        this.addCustomAttribute(findTagId(), findTagValue());
+        this.addCustomAttribute(
+            findOneFormTicketIdTag(),
+            String.valueOf(oneformTicket.getId())
+        );
+        this.addCustomAttribute(
+            findBscAgentNameId(),
+            oneformTicket.getAgentName()
+        );
+        this.addCustomAttribute(
+            findSentToLevelTwoId(),
+            findEscalatedValue()
+        );
+    }
 
+    private int findTagId() {
+        switch (applicationID) {
+            case ACCOUNTING_APP_ID:
+                return ACCOUNTING_TAG_ID;
+            case ADMISSIONS_APP_ID:
+                return ADMISSIONS_TAG_ID;
+            case ADVISING_APP_ID:
+                return ADVISING_TAG_ID;
+            case BYUI_TICKETS_APP_ID:
+                return BYUI_TICKETS_TAG_ID;
+            case FINANCIAL_AID_APP_ID:
+                return FINANCIAL_AID_TAG_ID;
+            case SRR_APP_ID:
+                return SRR_TAG_ID;
+            default:
+                assert false :
+                    "There is an uncaught case in this switch statement.";
+                return BYUI_TICKETS_TAG_ID;
+        }
+    }
+
+    private String findTagValue() {
+        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
+    }
+
+    private int findOneFormTicketIdTag() {
+        switch (applicationID) {
+            case ACCOUNTING_APP_ID:
+                return ACCOUNTING_ONE_FORM_TICKETID_TAG;
+            case ADMISSIONS_APP_ID:
+                return ADMISSIONS_ONE_FORM_TICKETID_TAG;
+            case ADVISING_APP_ID:
+                return ADVISING_ONE_FORM_TICKETID_TAG;
+            case BYUI_TICKETS_APP_ID:
+                return BYUI_TICKETS_ONE_FORM_TICKETID_TAG;
+            case FINANCIAL_AID_APP_ID:
+                return FINANCIAL_AID_ONE_FORM_TICKETID_TAG;
+            case SRR_APP_ID:
+                return SRR_ONE_FORM_TICKETID_TAG;
+            default:
+                assert false :
+                    "There is an uncaught case in this switch statement.";
+                return BYUI_TICKETS_ONE_FORM_TICKETID_TAG;
+        }
+    }
+    // TODO: Finish these
+    private int findBscAgentNameId() {
+        return 0;
+    }
+
+    private int findSentToLevelTwoId() {
+        return 0;
+    }
+
+    private String findEscalatedValue() {
+        return null;
     }
 
 }
