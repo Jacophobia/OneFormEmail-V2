@@ -79,9 +79,9 @@ public class PathwayTicket extends DepartmentTicket {
     private final String ADVISING_SENT_TO_LEVEL_2_YES = "36274";
     private final String ADVISING_SENT_TO_LEVEL_2_NO = "36275";
 
-    private final int GENERAL_SENT_TO_LEVEL_2 = 2281;
-    private final String GENERAL_SENT_TO_LEVEL_2_YES = "5919";
-    private final String GENERAL_SENT_TO_LEVEL_2_NO = "5920";
+    private final int BYUI_TICKETS_SENT_TO_LEVEL_2 = 2281;
+    private final String BYUI_TICKETS_SENT_TO_LEVEL_2_YES = "5919";
+    private final String BYUI_TICKETS_SENT_TO_LEVEL_2_NO = "5920";
 
     private final int FINANCIAL_AID_SENT_TO_LEVEL_2 = 3275;
     private final String FINANCIAL_AID_SENT_TO_LEVEL_2_YES = "12507";
@@ -351,15 +351,95 @@ public class PathwayTicket extends DepartmentTicket {
     }
     // TODO: Finish these
     private int findBscAgentNameId() {
-        return 0;
+        switch (applicationID) {
+            case ACCOUNTING_APP_ID:
+                return ACCOUNTING_BSC_AGENT_NAME;
+            case ADMISSIONS_APP_ID:
+                return ADMISSIONS_BSC_AGENT_NAME;
+            case ADVISING_APP_ID:
+                return ADVISING_BSC_AGENT_NAME;
+            case BYUI_TICKETS_APP_ID:
+                return BYUI_TICKETS_BSC_AGENT_NAME;
+            case FINANCIAL_AID_APP_ID:
+                return FINANCIAL_AID_BSC_AGENT_NAME;
+            case SRR_APP_ID:
+                return SRR_BSC_AGENT_NAME;
+            default:
+                assert false :
+                    "There is an uncaught case in this switch statement.";
+                return BYUI_TICKETS_BSC_AGENT_NAME;
+        }
     }
 
     private int findSentToLevelTwoId() {
-        return 0;
+        switch (applicationID) {
+            case ACCOUNTING_APP_ID:
+                return ACCOUNTING_SENT_TO_LEVEL_2;
+            case ADMISSIONS_APP_ID:
+                return ADMISSIONS_SENT_TO_LEVEL_2;
+            case ADVISING_APP_ID:
+                return ADVISING_SENT_TO_LEVEL_2;
+            case BYUI_TICKETS_APP_ID:
+                return BYUI_TICKETS_SENT_TO_LEVEL_2;
+            case FINANCIAL_AID_APP_ID:
+                return FINANCIAL_AID_SENT_TO_LEVEL_2;
+            case SRR_APP_ID:
+                return SRR_SENT_TO_LEVEL_2;
+            default:
+                assert false :
+                    "There is an uncaught case in this switch statement.";
+                return BYUI_TICKETS_SENT_TO_LEVEL_2;
+        }
     }
 
     private String findEscalatedValue() {
-        return null;
+        String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
+        switch (applicationID) {
+            case ACCOUNTING_APP_ID:
+                if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+                    return ACCOUNTING_SENT_TO_LEVEL_2_YES;
+                } else {
+                    return ACCOUNTING_SENT_TO_LEVEL_2_NO;
+                }
+            case ADMISSIONS_APP_ID:
+                if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+                    return ADMISSIONS_SENT_TO_LEVEL_2_YES;
+                } else {
+                    return ADMISSIONS_SENT_TO_LEVEL_2_NO;
+                }
+            case ADVISING_APP_ID:
+                if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+                    return ADVISING_SENT_TO_LEVEL_2_YES;
+                } else {
+                    return ADVISING_SENT_TO_LEVEL_2_NO;
+                }
+            case BYUI_TICKETS_APP_ID:
+                if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+                    return BYUI_TICKETS_SENT_TO_LEVEL_2_YES;
+                } else {
+                    return BYUI_TICKETS_SENT_TO_LEVEL_2_NO;
+                }
+            case FINANCIAL_AID_APP_ID:
+                if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+                    return FINANCIAL_AID_SENT_TO_LEVEL_2_YES;
+                } else {
+                    return FINANCIAL_AID_SENT_TO_LEVEL_2_NO;
+                }
+            case SRR_APP_ID:
+                if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+                    return SRR_SENT_TO_LEVEL_2_YES;
+                } else {
+                    return SRR_SENT_TO_LEVEL_2_NO;
+                }
+            default:
+                assert false :
+                    "There is an uncaught case in this switch statement.";
+                debug.logError(
+                    this.getClass(),
+                    "findEscalatedValue",
+                    "There is an uncaught case in this switch statement"
+                );
+                return BYUI_TICKETS_SENT_TO_LEVEL_2_NO;
+        }
     }
-
 }

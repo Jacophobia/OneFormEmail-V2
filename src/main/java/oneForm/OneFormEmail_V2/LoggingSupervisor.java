@@ -30,7 +30,7 @@ public class LoggingSupervisor {
         this.currentMethod = newMethod;
     }
 
-    public void log(Class<?> currentClass, String message) {
+    private void log(Class<?> currentClass, String message) {
         assert loggingManager != null :
             "Logging Manager has not been initialized";
         assert history != null :
@@ -55,6 +55,17 @@ public class LoggingSupervisor {
         log(currentClass, message);
     }
 
+    public void log(String message) {
+        StackTraceElement[] stackTraceElements =
+            Thread.currentThread().getStackTrace();
+        StackTraceElement recentElement = stackTraceElements[2];
+        history.addEvent(new LoggingEvent(
+            message,
+            recentElement.getMethodName(),
+            recentElement.getClassName(),
+            Level.INFO));
+    }
+
 
     public void logWarning(Class<?> currentClass, String message) {
         assert loggingManager != null :
@@ -77,6 +88,17 @@ public class LoggingSupervisor {
                            String message) {
         setCurrentMethod(currentMethod);
         logWarning(currentClass, message);
+    }
+
+    public void logWarning(String message) {
+        StackTraceElement[] stackTraceElements =
+            Thread.currentThread().getStackTrace();
+        StackTraceElement recentElement = stackTraceElements[2];
+        history.addEvent(new LoggingEvent(
+            message,
+            recentElement.getMethodName(),
+            recentElement.getClassName(),
+            Level.WARNING));
     }
 
     public void logError(Class<?> currentClass, String message) {
@@ -119,6 +141,17 @@ public class LoggingSupervisor {
                          String message) {
         setCurrentMethod(currentMethod);
         logError(currentClass, message);
+    }
+
+    public void logError(String message) {
+        StackTraceElement[] stackTraceElements =
+            Thread.currentThread().getStackTrace();
+        StackTraceElement recentElement = stackTraceElements[2];
+        history.addEvent(new LoggingEvent(
+            message,
+            recentElement.getMethodName(),
+            recentElement.getClassName(),
+            Level.SEVERE));
     }
 
     public void displayLog() {

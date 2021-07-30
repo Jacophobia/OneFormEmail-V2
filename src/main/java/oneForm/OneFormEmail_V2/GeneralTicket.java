@@ -3,7 +3,6 @@ package oneForm.OneFormEmail_V2;
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
-import td.api.TeamDynamix;
 import td.api.Ticket;
 
 import java.util.HashMap;
@@ -53,7 +52,6 @@ public abstract class GeneralTicket extends Ticket {
             );
         }
         debug.log(
-            this.getClass(),
             this.getClass().getSimpleName() + " Initialized."
         );
     }
@@ -93,7 +91,7 @@ public abstract class GeneralTicket extends Ticket {
 
     public String toString() {
         return
-            "\n      " + this.getClass() +
+            "\n      " + this.getClass().getSimpleName() +
             "\n" +
             "\n      *  - Editable" +
             "\n      *  *  - Editable and Required" +

@@ -15,7 +15,6 @@ import td.api.Ticket;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import static java.lang.Integer.parseInt;
 import static oneForm.OneFormEmail_V2.RequestCollector.*;
 
 
@@ -64,11 +63,9 @@ public class ProcessRequest extends TDRunnable {
         oneFormTicketID = ticketID;
         this.ACTION = ACTION;
 
-        String sandboxExtension = "";
-        if (Settings.sandbox)
-            sandboxExtension = "SB";
+        String SB = Settings.sandbox ? "SB" : "";
         push = new TeamDynamix(
-            System.getenv("TD_API_BASE_URL") + sandboxExtension,
+            System.getenv("TD_API_BASE_URL") + SB,
             System.getenv("USERNAME"),
             System.getenv("PASSWORD"),
             debug.getHistory()
@@ -99,6 +96,11 @@ public class ProcessRequest extends TDRunnable {
             this.andonTicketSemaphore.release();
             FaultTDExceptionMessage exceptionMessage =
                 TDExceptionMessageFactory.getFaultTDExceptionMessage(exception);
+            debug.logError(
+                this.getClass(),
+                "executeTask",
+                exceptionMessage.createMessage()
+            );
             throw new TDException(exceptionMessage, this.history);
         }
     }
@@ -272,7 +274,7 @@ public class ProcessRequest extends TDRunnable {
         debug.log(
             this.getClass(),
             "createDepartmentTicket",
-            "Department ticket added to tickets"
+            departmentTicket.getClass().getSimpleName() + " added to tickets"
         );
         tickets.add(departmentTicket);
     }
@@ -288,7 +290,7 @@ public class ProcessRequest extends TDRunnable {
             debug.log(
                 this.getClass(),
                 "sendCompletedTickets",
-                "Preparing Ticket for upload"
+                "Preparing " + ticket.getClass().getSimpleName() + " for upload"
             );
             ticket.prepareTicketUpload();
             Ticket uploadedTicket = push.createTicket(
