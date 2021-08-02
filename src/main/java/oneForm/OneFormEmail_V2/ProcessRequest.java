@@ -2,6 +2,7 @@ package oneForm.OneFormEmail_V2;
 
 import com.google.gson.Gson;
 import oneForm.OneFormEmail_V2.DepartmentTickets.*;
+import td.api.Exceptions.ExceptionMessages.BasicTDExceptionMessage;
 import td.api.Exceptions.ExceptionMessages.FaultTDExceptionMessage;
 import td.api.Exceptions.ExceptionMessages.TDExceptionMessageFactory;
 import td.api.Exceptions.TDException;
@@ -99,8 +100,9 @@ public class ProcessRequest extends TDRunnable {
             debug.logError(
                 this.getClass(),
                 "executeTask",
-                exceptionMessage.createMessage()
+                oneformTicket.getId() + "\n" + exceptionMessage.createMessage()
             );
+            debug.sendErrorReport();
             throw new TDException(exceptionMessage, this.history);
         }
     }

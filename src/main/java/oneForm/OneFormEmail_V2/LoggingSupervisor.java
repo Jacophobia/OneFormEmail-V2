@@ -1,5 +1,6 @@
 package oneForm.OneFormEmail_V2;
 
+import td.api.Exceptions.TDException;
 import td.api.Logging.History;
 import td.api.Logging.LoggingEvent;
 import td.api.Logging.TDLoggingManager;
@@ -8,11 +9,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 
+import static oneForm.OneFormEmail_V2.ProcessRequest.pull;
+
 public class LoggingSupervisor {
     private History history;
     private History masterHistory = RequestCollector.history;
     private String currentMethod;
     private TDLoggingManager loggingManager;
+    private ErrorTicket errorTicket = null;
 
     public LoggingSupervisor(History history) {
         loggingManager = new TDLoggingManager(Settings.debug);
@@ -113,6 +117,13 @@ public class LoggingSupervisor {
         assert currentClass != null :
             "The current class has not been declared";
 
+        if (errorTicket == null) {
+            errorTicket = new ErrorTicket(message);
+        }
+        else {
+            errorTicket.logError(message);
+        }
+
         history.addEvent(new LoggingEvent(
             message,
             currentMethod,
@@ -144,6 +155,12 @@ public class LoggingSupervisor {
     }
 
     public void logError(String message) {
+        if (errorTicket == null) {
+            errorTicket = new ErrorTicket(message);
+        }
+        else {
+            errorTicket.logError(message);
+        }
         StackTraceElement[] stackTraceElements =
             Thread.currentThread().getStackTrace();
         StackTraceElement recentElement = stackTraceElements[2];
@@ -151,7 +168,8 @@ public class LoggingSupervisor {
             message,
             recentElement.getMethodName(),
             recentElement.getClassName(),
-            Level.SEVERE));
+            Level.SEVERE
+        ));
     }
 
     public void displayLog() {
@@ -160,7 +178,31 @@ public class LoggingSupervisor {
         assert history != null :
             "History has not been initialized";
 
+        this.sendErrorReport();
+
         loggingManager.logHistory(history);
+    }
+
+    public void sendErrorReport() {
+        if (errorTicket != null) {
+            try {
+                pull.createTicket(42, errorTicket); // TODO: Change this to push
+                history.addEvent(new LoggingEvent(
+                    "Error Ticket Created.",
+                    "displayLog",
+                    this.getClass(),
+                    Level.WARNING
+                ));
+            }
+            catch (TDException exception) {
+                history.addEvent(new LoggingEvent(
+                    "Error: Unable to send Error Ticket.",
+                    "displayLog",
+                    this.getClass(),
+                    Level.SEVERE
+                ));
+            }
+        }
     }
 
     public History getHistory() {

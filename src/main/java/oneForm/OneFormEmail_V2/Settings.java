@@ -18,6 +18,4 @@ public class Settings {
     // If you would like to display the ticket bodies for each ticket
     // upon upload, set this variable to true.
     public static boolean displayTicketBodies = false;
-
-    public static String season = "Summer";
 }

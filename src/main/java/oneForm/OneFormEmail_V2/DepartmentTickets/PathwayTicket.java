@@ -105,20 +105,20 @@ public class PathwayTicket extends DepartmentTicket {
             case TAG_APPLICATION_QUESTIONS:
                 applicationID = ADMISSIONS_APP_ID;
                 break;
-            case TAG_COMPLAINTS_GRIEVANCES:
-                applicationID = BYUI_TICKETS_APP_ID;
-                break;
             case TAG_CHARGES_PAYMENTS:
                 applicationID = ACCOUNTING_APP_ID;
                 break;
             case TAG_FINANCIAL_AID:
                 applicationID = FINANCIAL_AID_APP_ID;
                 break;
-            case TAG_TECHNICAL_ISSUES:
-                applicationID = BYUI_TICKETS_APP_ID;
-                break;
             case TAG_REGISTRATION_ISSUES:
                 applicationID = SRR_APP_ID;
+                break;
+            case TAG_COMPLAINTS_GRIEVANCES:
+                applicationID = BYUI_TICKETS_APP_ID;
+                break;
+            case TAG_TECHNICAL_ISSUES:
+                applicationID = BYUI_TICKETS_APP_ID;
                 break;
             case TAG_ALL_OTHER_QUESTIONS:
                 applicationID = BYUI_TICKETS_APP_ID;

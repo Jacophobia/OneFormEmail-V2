@@ -137,7 +137,8 @@ public abstract class DepartmentTicket extends GeneralTicket {
     // incident which was recorded in the OneForm ticket.
     //
     private String findDescription() {
-        return oneformTicket.getDescription();
+        return oneformTicket.getDescription() +
+            "|ONEFORM TICKET ID = " + oneformTicket.getId() + "|";
     }
 
     private int findLocationId() {
