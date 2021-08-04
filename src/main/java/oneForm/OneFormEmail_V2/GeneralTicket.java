@@ -5,11 +5,14 @@ import td.api.Exceptions.TDException;
 import td.api.Logging.History;
 import td.api.Ticket;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class GeneralTicket extends Ticket {
     protected LoggingSupervisor debug;
+    protected Ticket createdTicket;
     protected Map<Integer, String> ticketAttributes = new HashMap<>();
     protected Map<Integer, String> attributeChoiceText = new HashMap<>();
     protected int applicationID = 0;
@@ -23,8 +26,20 @@ public abstract class GeneralTicket extends Ticket {
         this.applicationID = applicationID;
     }
 
-    public int getApplicationID() {
+    @Override
+    public int getAppId() {
+        if (this.applicationID == 0) {
+            return super.getAppId();
+        }
         return applicationID;
+    }
+
+    @Override
+    public int getId() {
+        if (this.createdTicket == null) {
+            return super.getId();
+        }
+        return createdTicket.getId();
     }
 
     public void initializeTicket(History history) {
@@ -56,7 +71,17 @@ public abstract class GeneralTicket extends Ticket {
         );
     }
 
-    abstract public void prepareTicketUpload() throws TDException;
+    public void prepareTicketUpload() throws TDException {
+        ArrayList<CustomAttribute> customAttributes = new ArrayList<>();
+        Set<Integer> keys = this.ticketAttributes.keySet();
+        for (int key : keys) {
+            customAttributes.add(new CustomAttribute(
+                key,
+                this.ticketAttributes.get(key))
+            );
+        }
+        this.setAttributes(customAttributes);
+    }
 
     public String getCustomAttribute(int attributeID) {
         assert ticketAttributes != null :
@@ -78,7 +103,6 @@ public abstract class GeneralTicket extends Ticket {
 
     public void addCustomAttribute(int key, String value) {
         CustomAttribute newAttribute = new CustomAttribute(key, value);
-        this.getAttributes().add(newAttribute);
         ticketAttributes.put(key, newAttribute.getValue());
         attributeChoiceText.put(key, newAttribute.getChoicesText());
     }
@@ -87,6 +111,10 @@ public abstract class GeneralTicket extends Ticket {
         assert ticketAttributes != null :
             "ticketAttributes has not been initialized";
         return ticketAttributes.containsKey(attributeID);
+    }
+
+    public void setCreatedTicket(Ticket createdTicket) {
+        this.createdTicket = createdTicket;
     }
 
     public String toString() {

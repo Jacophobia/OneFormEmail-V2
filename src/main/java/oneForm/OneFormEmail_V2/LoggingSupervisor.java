@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 
-import static oneForm.OneFormEmail_V2.ProcessRequest.pull;
+import static oneForm.OneFormEmail_V2.ProcessRequest.*;
 
 public class LoggingSupervisor {
     private History history;
@@ -17,6 +17,8 @@ public class LoggingSupervisor {
     private String currentMethod;
     private TDLoggingManager loggingManager;
     private ErrorTicket errorTicket = null;
+
+    private final int OPERATIONS_APP_ID = 42;
 
     public LoggingSupervisor(History history) {
         loggingManager = new TDLoggingManager(Settings.debug);
@@ -117,12 +119,6 @@ public class LoggingSupervisor {
         assert currentClass != null :
             "The current class has not been declared";
 
-        if (errorTicket == null) {
-            errorTicket = new ErrorTicket(message);
-        }
-        else {
-            errorTicket.logError(message);
-        }
 
         history.addEvent(new LoggingEvent(
             message,
@@ -146,6 +142,13 @@ public class LoggingSupervisor {
             currentClass,
             Level.SEVERE)
         );
+
+        if (errorTicket == null) {
+            errorTicket = new ErrorTicket(history.getTitle() +
+                "Error in " + history.getTitle() + " at " +
+                formatter.format(date) + "\n\n");
+        }
+        errorTicket.logError(message);
     }
 
     public void logError(Class<?> currentClass, String currentMethod,
@@ -155,12 +158,18 @@ public class LoggingSupervisor {
     }
 
     public void logError(String message) {
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat(
+            "MM-dd-yyyy HH:mm:ss"
+        );
+
         if (errorTicket == null) {
-            errorTicket = new ErrorTicket(message);
+            errorTicket = new ErrorTicket(history.getTitle() +
+                "Error in " + history.getTitle() + " at " +
+                formatter.format(date) + "\n\n");
         }
-        else {
-            errorTicket.logError(message);
-        }
+        errorTicket.logError(message);
+
         StackTraceElement[] stackTraceElements =
             Thread.currentThread().getStackTrace();
         StackTraceElement recentElement = stackTraceElements[2];
@@ -177,19 +186,22 @@ public class LoggingSupervisor {
             "Logging Manager has not been initialized";
         assert history != null :
             "History has not been initialized";
-
-        this.sendErrorReport();
+        if (errorTicket != null) {
+            this.sendErrorReport();
+        }
 
         loggingManager.logHistory(history);
     }
 
     public void sendErrorReport() {
-        if (errorTicket != null) {
+        assert errorTicket != null :
+            "The error ticket has not been initialized";
+        if (!Settings.sandbox && errorTicket != null) {
             try {
-                pull.createTicket(42, errorTicket); // TODO: Change this to push
+                push.createTicket(OPERATIONS_APP_ID, errorTicket);
                 history.addEvent(new LoggingEvent(
                     "Error Ticket Created.",
-                    "displayLog",
+                    "sendErrorReport",
                     this.getClass(),
                     Level.WARNING
                 ));
@@ -197,7 +209,7 @@ public class LoggingSupervisor {
             catch (TDException exception) {
                 history.addEvent(new LoggingEvent(
                     "Error: Unable to send Error Ticket.",
-                    "displayLog",
+                    "sendErrorReport",
                     this.getClass(),
                     Level.SEVERE
                 ));

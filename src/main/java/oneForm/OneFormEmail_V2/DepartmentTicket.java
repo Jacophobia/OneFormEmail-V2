@@ -2,11 +2,9 @@ package oneForm.OneFormEmail_V2;
 
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
-import td.api.Ticket;
 
 public abstract class DepartmentTicket extends GeneralTicket {
     protected OneformTicket oneformTicket;
-    protected Ticket createdTicket;
 
     private final int STATUS_3_ID = 21;
 
@@ -34,19 +32,8 @@ public abstract class DepartmentTicket extends GeneralTicket {
     }
 
     @Override
-    public int getId() {
-        if (this.createdTicket == null) {
-            return super.getId();
-        }
-        return createdTicket.getId();
-    }
-
-    public void setCreatedTicket(Ticket createdTicket) {
-        this.createdTicket = createdTicket;
-    }
-
-    @Override
     public void prepareTicketUpload() throws TDException {
+        super.prepareTicketUpload();
         setRequiredAttributes();
         setAdditionalAttributes();
         setDepartmentSpecificAttributes();
