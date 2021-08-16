@@ -143,6 +143,8 @@ public abstract class DepartmentTicket extends GeneralTicket {
      * in.
      */
     abstract protected void setDepartmentSpecificAttributes();
+    // TODO: Add all of the common custom attributes to the additional
+    //  attributes method and use abstract find methods
 
     /**
      * If you ever want to view the contents of a department ticket for

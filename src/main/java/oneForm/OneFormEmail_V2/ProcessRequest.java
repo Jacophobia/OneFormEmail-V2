@@ -13,6 +13,7 @@ import td.api.MultiThreading.TDRunnable;
 import td.api.TeamDynamix;
 import td.api.Ticket;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -24,6 +25,7 @@ public class ProcessRequest extends TDRunnable {
     // Constants
     private final int ONE_FORM_APPLICATION_ID = 48;
     private final int OFFICE_LIST_1_ATTRIBUTE_ID = 10329;
+    private final int ONEFORM_DEPT_TICKET_ID = 11452;
     private final String ACADEMIC_OFFICE_LIST_VAL = "31724";
     private final String ACCOUNTING_OFFICE_LIST_VAL = "31723";
     private final String ADMISSIONS_OFFICE_LIST_VAL = "31725";
@@ -39,6 +41,7 @@ public class ProcessRequest extends TDRunnable {
     private final int OPERATIONS_APP_ID = 42;
     private final int ANDON_ATTRIBUTE_ID = 10376;
     private final int ONEFORM_ANDON_TICKET_ID = 12221;
+    private final String ANDON_YES = "32086";
 
 
     // Semaphores
@@ -113,15 +116,16 @@ public class ProcessRequest extends TDRunnable {
 
     private void processTicketRequest() throws TDException {
         retrieveOneFormTicket();
-        debug.log("Oneform Ticket Id: " + oneformTicket.getId());
+
         if (ACTION != ACTION_REQUESTED.SPAM) {
-            createDepartmentTicket();
+            if (oneformTicket.containsAttribute(ANDON_ATTRIBUTE_ID)) {
+                createAndonTicket();
+            }
+            if (!oneformTicket.containsAttribute(ONEFORM_DEPT_TICKET_ID)) {
+                createDepartmentTicket();
+            }
         }
         manageCountData();
-        if (oneformTicket.containsAttribute(ANDON_ATTRIBUTE_ID)) {
-            debug.log("Contains Andon Cord attribute.");
-            createAndonTicket();
-        }
         sendCompletedTickets();
         makeFinalChanges();
     }
@@ -137,7 +141,9 @@ public class ProcessRequest extends TDRunnable {
         );
         retrievedOneFormTicket.initializeTicket(debug.getHistory(), ACTION);
         this.oneformTicket = retrievedOneFormTicket;
-
+        oneformTicket.setRetrieved(true);
+        this.tickets.add(oneformTicket);
+        debug.log("Oneform Ticket Id: " + oneformTicket.getId());
     }
 
     private void createDepartmentTicket() {
@@ -279,18 +285,24 @@ public class ProcessRequest extends TDRunnable {
             }
             countTicket.incrementCount();
             countTicketSemaphore.release();
-            if (found && !Settings.sandbox) {
-                push.editTicket(false, countTicket);
-            }
-            else {
-                tickets.add(countTicket);
-            }
+            this.tickets.add(countTicket);
+
         }
         catch (TDException exception){
             debug.logError("Unable to modify count ticket.");
             countTicketSemaphore.release();
             return;
         }
+    }
+
+    private void retrieveDepartmentTicket(int ticketId, int appId,
+            Class<?> ticketClass) throws TDException {
+        Gson gson = new Gson();
+        String json = gson.toJson(pull.getTicket(appId, ticketId));
+        DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
+        ticket.initializeTicket(debug.getHistory());
+        this.departmentTicket = ticket;
+        this.departmentTicket.setRetrieved(true);
     }
 
     private void retrieveCountTicket(int countTicketID) throws TDException {
@@ -308,35 +320,20 @@ public class ProcessRequest extends TDRunnable {
             ACTION
         );
         this.countTicket = retrievedCountTicket;
+        this.countTicket.setRetrieved(true);
     }
 
     private void createAndonTicket() {
         String isAndon = oneformTicket.getCustomAttribute(ANDON_ATTRIBUTE_ID);
-        assert isAndon.equals("32086") :
+        assert isAndon.equals(ANDON_YES) :
             "The andon ticket value is included, but has an unrecognized value";
         if (oneformTicket.containsAttribute(ONEFORM_ANDON_TICKET_ID)) {
             debug.log("Andon Ticket already created.");
             return;
         }
 
-        boolean acquired = false;
-        int attempts = 0;
-        while (!acquired) {
-            try {
-                attempts++;
-                this.andonTicketSemaphore.acquire();
-                acquired = true;
-            } catch (InterruptedException exception) {
-                if (attempts > 10) {
-                    debug.logError("Unable to acquire Andon Semaphore.");
-                    return;
-                }
-            }
-        }
-
         andonTicket = new AndonTicket(debug.getHistory(), oneformTicket);
         tickets.add(andonTicket);
-        this.andonTicketSemaphore.release();
     }
 
     private void sendCompletedTickets() throws TDException {
@@ -346,32 +343,41 @@ public class ProcessRequest extends TDRunnable {
             debug.log(
                 "Preparing " + ticket.getClass().getSimpleName() + " for upload"
             );
+
             ticket.prepareTicketUpload();
-            Ticket uploadedTicket = push.createTicket(
-                ticket.getAppId(),
-                ticket
-            );
+
+            Ticket uploadedTicket;
+            if (!ticket.isRetrieved()) {
+                uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
+            }
+            else {
+                uploadedTicket = pull.editTicket(false, ticket);
+            }
+
+            assert uploadedTicket != null :
+                "The uploaded ticket was never initialized.";
 
             ticket.setCreatedTicket(uploadedTicket);
-            
+
             debug.log(
                 ticket.getClass().getSimpleName() + " uploaded. ID : " +
                 ticket.getId()
             );
         }
-        // Prepare and patch the oneform ticket to contain new data
-        // about the department ticket.
-        oneformTicket.prepareTicketUpload();
-        pull.editTicket(false, oneformTicket);
     }
 
     private void makeFinalChanges() {
-        this.addAttachments();
+        if (departmentTicket != null && !departmentTicket.isRetrieved())
+            this.addAttachments();
+            oneformTicket.setDepartmentId(departmentTicket.getId());
         if (andonTicket != null)
             oneformTicket.setAndonId(andonTicket.getId());
     }
 
     private void addAttachments() {
+        assert departmentTicket != null :
+            "This method is being called unnecessarily, department " +
+            "ticket has not been initialized.";
         assert departmentTicket.getId() != 0 :
             "The department ticket was not uploaded.";
         assert oneformTicket.getId() != 0 :
@@ -379,10 +385,12 @@ public class ProcessRequest extends TDRunnable {
         ArrayList<Attachment> attachments = oneformTicket.getAttachments();
         for (Attachment attachment : attachments) {
             try {
+                byte[] contents = pull.getAttachmentContents(attachment);
                 push.uploadAttachment(
                     departmentTicket.getId(),
                     departmentTicket.getAppId(),
-                    attachment
+                    contents,
+                    attachment.getName()
                 );
                 debug.log("Attachment added.");
             }

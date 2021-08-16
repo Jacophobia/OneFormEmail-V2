@@ -16,6 +16,7 @@ public class OneformTicket extends GeneralTicket {
     private final int ANDON_TICKET_ID = 12221;
     private final int OFFICE_ID = 10329;
     private final String OFFICE_SPAM = "36076";
+    private final int DEPT_TICKET_ID = 11452;
 
     private String DEFAULT_UID = "e578bb85-0041-e511-80d1-005056ac5ec6";
     ArrayList<ItemUpdate> feed;
@@ -88,6 +89,10 @@ public class OneformTicket extends GeneralTicket {
     @Override
     public void prepareTicketUpload() throws TDException {
         super.prepareTicketUpload();
+    }
+
+    public void setDepartmentId(int departmentId){
+        this.addCustomAttribute(DEPT_TICKET_ID, String.valueOf(departmentId));
     }
 
     public void setAndonId(int andonId) {
