@@ -5,10 +5,7 @@ import td.api.Exceptions.TDException;
 import td.api.Logging.History;
 import td.api.Ticket;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public abstract class GeneralTicket extends Ticket {
     protected LoggingSupervisor debug;
@@ -16,10 +13,19 @@ public abstract class GeneralTicket extends Ticket {
     protected Map<Integer, String> ticketAttributes = new HashMap<>();
     protected Map<Integer, String> attributeChoiceText = new HashMap<>();
     protected int applicationID = 0;
+    protected boolean retrieved = false;
 
     public GeneralTicket(History history) {
         super();
         this.initializeTicket(history);
+    }
+
+    public boolean isRetrieved() {
+        return retrieved;
+    }
+
+    public void setRetrieved(boolean retrieved) {
+        this.retrieved = retrieved;
     }
 
     public void setApplicationID(int applicationID) {
@@ -36,10 +42,10 @@ public abstract class GeneralTicket extends Ticket {
 
     @Override
     public int getId() {
-        if (this.createdTicket == null) {
-            return super.getId();
+        if (this.createdTicket != null) {
+            return createdTicket.getId();
         }
-        return createdTicket.getId();
+        return super.getId();
     }
 
     public void initializeTicket(History history) {
@@ -69,6 +75,9 @@ public abstract class GeneralTicket extends Ticket {
         debug.logNote(
             this.getClass().getSimpleName() + " Initialized."
         );
+        this.setGoesOffHoldDate(new Date(
+            System.currentTimeMillis() + 1000000000000L
+        ));
     }
 
     public void prepareTicketUpload() throws TDException {
@@ -79,6 +88,7 @@ public abstract class GeneralTicket extends Ticket {
                 key,
                 this.ticketAttributes.get(key))
             );
+            System.out.println("Custom Attribute added.");
         }
         this.setAttributes(customAttributes);
     }
