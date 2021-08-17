@@ -48,6 +48,7 @@ public class OneformTicket extends GeneralTicket {
             if (
                 !name.equals("BSC Robot") &&
                 !name.equals("System") &&
+                !name.equals("Ipaas Automation") &&
                 !found
             ) {
                 this.agentName = itemUpdate.getCreatedFullName();

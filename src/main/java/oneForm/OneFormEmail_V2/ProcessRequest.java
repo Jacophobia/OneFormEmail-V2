@@ -146,77 +146,77 @@ public class ProcessRequest extends TDRunnable {
         switch (oneformTicket.getCustomAttribute(OFFICE_LIST_1_ATTRIBUTE_ID)) {
 
             case PATHWAY_OFFICE_LIST_VAL:
-                debug.log("Creating Pathway Ticket");
+                debug.logNote("Creating Pathway Ticket");
                 departmentTicket = new PathwayTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case ACCOUNTING_OFFICE_LIST_VAL:
-                debug.log("Creating Accounting Ticket");
+                debug.logNote("Creating Accounting Ticket");
                 departmentTicket = new AccountingTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case ADMISSIONS_OFFICE_LIST_VAL:
-                debug.log("Creating Admissions Ticket");
+                debug.logNote("Creating Admissions Ticket");
                 departmentTicket = new AdmissionsTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case ADVISING_OFFICE_LIST_VAL:
-                debug.log("Creating Advising Ticket");
+                debug.logNote("Creating Advising Ticket");
                 departmentTicket = new AdvisingTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case GENERAL_OFFICE_LIST_VAL:
-                debug.log("Creating General Ticket");
+                debug.logNote("Creating General Ticket");
                 departmentTicket = new ByuiTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case ACADEMIC_OFFICE_LIST_VAL:
-                debug.log("Creating Academic Ticket");
+                debug.logNote("Creating Academic Ticket");
                 departmentTicket = new ByuiTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case FACILITIES_OFFICE_LIST_VAL:
-                debug.log("Creating Facilities Ticket");
+                debug.logNote("Creating Facilities Ticket");
                 departmentTicket = new ByuiTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case FINANCIAL_AID_OFFICE_LIST_VAL:
-                debug.log("Creating Financial Aid Ticket");
+                debug.logNote("Creating Financial Aid Ticket");
                 departmentTicket = new FinancialAidTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case IT_OFFICE_LIST_VAL:
-                debug.log("Creating IT Ticket");
+                debug.logNote("Creating IT Ticket");
                 departmentTicket = new ByuiTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case SRR_OFFICE_LIST_VAL:
-                debug.log("Creating SRR Ticket");
+                debug.logNote("Creating SRR Ticket");
                 departmentTicket = new SrrTicket(
                     debug.getHistory(),
                     oneformTicket
                 );
                 break;
             case UNIVERSITY_STORE_OFFICE_LIST_VAL:
-                debug.log("Creating University Store Ticket");
+                debug.logNote("Creating University Store Ticket");
                 departmentTicket = new ByuiTicket(
                     debug.getHistory(),
                     oneformTicket
@@ -343,7 +343,7 @@ public class ProcessRequest extends TDRunnable {
         for (GeneralTicket ticket  : tickets) {
             if (Settings.displayTicketBodies)
                 debug.log("Uploading " + ticket.toString());
-            debug.log(
+            debug.logNote(
                 "Preparing " + ticket.getClass().getSimpleName() + " for upload"
             );
             ticket.prepareTicketUpload();
@@ -384,7 +384,7 @@ public class ProcessRequest extends TDRunnable {
                     departmentTicket.getAppId(),
                     attachment
                 );
-                debug.log("Attachment added.");
+                debug.logNote("Attachment added.");
             }
             catch (TDException exception) {
                 debug.logWarning("Failed to add attachment.");

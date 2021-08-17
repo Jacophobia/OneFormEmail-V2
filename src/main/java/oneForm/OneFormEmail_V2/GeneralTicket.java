@@ -44,7 +44,7 @@ public abstract class GeneralTicket extends Ticket {
 
     public void initializeTicket(History history) {
         debug = new LoggingSupervisor(history);
-        debug.log(
+        debug.logNote(
             this.getClass(),
             "initializeTicket",
             "Beginning " + this.getClass().getSimpleName() + " Initialization"
@@ -66,7 +66,7 @@ public abstract class GeneralTicket extends Ticket {
                 attribute.getChoicesText()
             );
         }
-        debug.log(
+        debug.logNote(
             this.getClass().getSimpleName() + " Initialized."
         );
     }

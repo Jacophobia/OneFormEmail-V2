@@ -36,6 +36,28 @@ public class LoggingSupervisor {
         this.currentMethod = newMethod;
     }
 
+    public void logNote(String note) {
+        if (!Settings.debug)
+            return;
+        StackTraceElement[] stackTraceElements =
+            Thread.currentThread().getStackTrace();
+        StackTraceElement recentElement = stackTraceElements[2];
+        history.addEvent(new LoggingEvent(
+            note,
+            recentElement.getMethodName(),
+            recentElement.getClassName(),
+            Level.INFO)
+        );
+    }
+
+    public void logNote(Class<?> currentClass, String currentMethod,
+                        String message) {
+        if (!Settings.debug)
+            return;
+        setCurrentMethod(currentMethod);
+        log(currentClass, message);
+    }
+
     private void log(Class<?> currentClass, String message) {
         assert loggingManager != null :
             "Logging Manager has not been initialized";
@@ -69,7 +91,8 @@ public class LoggingSupervisor {
             message,
             recentElement.getMethodName(),
             recentElement.getClassName(),
-            Level.INFO));
+            Level.INFO)
+        );
     }
 
 
@@ -104,7 +127,8 @@ public class LoggingSupervisor {
             message,
             recentElement.getMethodName(),
             recentElement.getClassName(),
-            Level.WARNING));
+            Level.WARNING)
+        );
     }
 
     public void logError(Class<?> currentClass, String message) {
@@ -177,8 +201,8 @@ public class LoggingSupervisor {
             message,
             recentElement.getMethodName(),
             recentElement.getClassName(),
-            Level.SEVERE
-        ));
+            Level.SEVERE)
+        );
     }
 
     public void displayLog() {
