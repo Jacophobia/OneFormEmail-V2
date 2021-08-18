@@ -72,9 +72,7 @@ public abstract class GeneralTicket extends Ticket {
                 attribute.getChoicesText()
             );
         }
-        debug.logNote(
-            this.getClass().getSimpleName() + " Initialized."
-        );
+        debug.logNote(this.getClass().getSimpleName() + " Initialized.");
         this.setGoesOffHoldDate(new Date(
             System.currentTimeMillis() + 1000000000000L
         ));
@@ -88,7 +86,6 @@ public abstract class GeneralTicket extends Ticket {
                 key,
                 this.ticketAttributes.get(key))
             );
-            System.out.println("Custom Attribute added.");
         }
         this.setAttributes(customAttributes);
     }

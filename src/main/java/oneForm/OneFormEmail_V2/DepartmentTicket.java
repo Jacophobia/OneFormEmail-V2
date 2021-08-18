@@ -31,6 +31,11 @@ public abstract class DepartmentTicket extends GeneralTicket {
         this.oneformTicket = oneformTicket;
     }
 
+    public void initializeTicket(History history, OneformTicket oneformTicket) {
+        super.initializeTicket(history);
+        this.oneformTicket = oneformTicket;
+    }
+
     @Override
     public void prepareTicketUpload() throws TDException {
         super.prepareTicketUpload();

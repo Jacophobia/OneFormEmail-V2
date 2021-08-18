@@ -23,25 +23,25 @@ import static oneForm.OneFormEmail_V2.RequestCollector.*;
 
 public class ProcessRequest extends TDRunnable {
     // Constants
-    private final int ONE_FORM_APPLICATION_ID = 48;
-    private final int OFFICE_LIST_1_ATTRIBUTE_ID = 10329;
-    private final int ONEFORM_DEPT_TICKET_ID = 11452;
-    private final String ACADEMIC_OFFICE_LIST_VAL = "31724";
-    private final String ACCOUNTING_OFFICE_LIST_VAL = "31723";
-    private final String ADMISSIONS_OFFICE_LIST_VAL = "31725";
-    private final String ADVISING_OFFICE_LIST_VAL = "31727";
-    private final String FACILITIES_OFFICE_LIST_VAL = "31728";
+    private final int    ONE_FORM_APPLICATION_ID       = 48;
+    private final int    OFFICE_LIST_1_ATTRIBUTE_ID    = 10329;
+    private final int    ONEFORM_DEPT_TICKET_ID        = 11452;
+    private final String ACADEMIC_OFFICE_LIST_VAL      = "31724";
+    private final String ACCOUNTING_OFFICE_LIST_VAL    = "31723";
+    private final String ADMISSIONS_OFFICE_LIST_VAL    = "31725";
+    private final String ADVISING_OFFICE_LIST_VAL      = "31727";
+    private final String FACILITIES_OFFICE_LIST_VAL    = "31728";
     private final String FINANCIAL_AID_OFFICE_LIST_VAL = "31729";
-    private final String GENERAL_OFFICE_LIST_VAL = "31730";
-    private final String IT_OFFICE_LIST_VAL = "31732";
-    private final String SRR_OFFICE_LIST_VAL = "31733";
-    private final String UNIVERSITY_STORE_OFFICE_LIST_VAL = "31734";
-    private final String PATHWAY_OFFICE_LIST_VAL = "36695";
-    private final int COUNT_TICKET_REPORT_ID = 18409;
-    private final int OPERATIONS_APP_ID = 42;
-    private final int ANDON_ATTRIBUTE_ID = 10376;
-    private final int ONEFORM_ANDON_TICKET_ID = 12221;
-    private final String ANDON_YES = "32086";
+    private final String GENERAL_OFFICE_LIST_VAL       = "31730";
+    private final String IT_OFFICE_LIST_VAL            = "31732";
+    private final String SRR_OFFICE_LIST_VAL           = "31733";
+    private final String UNI_STORE_OFFICE_LIST_VAL     = "31734";
+    private final String PATHWAY_OFFICE_LIST_VAL       = "36695";
+    private final int    COUNT_TICKET_REPORT_ID        = 18409;
+    private final int    OPERATIONS_APP_ID             = 42;
+    private final int    ANDON_ATTRIBUTE_ID            = 10376;
+    private final int    ONEFORM_ANDON_TICKET_ID       = 12221;
+    private final String ANDON_YES                     = "32086";
 
 
     // Semaphores
@@ -62,7 +62,16 @@ public class ProcessRequest extends TDRunnable {
     // Other
     private int oneFormTicketID;
 
-
+    /**
+     * This initializes the ProcessRequest object. We need to know which
+     * action was selected by the email agent, so we know how to handle
+     * the ticket. If you want to change the program to sandbox mode so
+     * that the tickets are created in sandbox, go to Settings and
+     * change sandbox to true.
+     * @param ticketID the ticket ID of the ticket we are requesting
+     *                 processing for.
+     * @param ACTION the action selected by the email agent.
+     */
     public ProcessRequest(int ticketID, ACTION_REQUESTED ACTION) {
         super(
             new TDLoggingManager(Settings.debug),
@@ -88,14 +97,37 @@ public class ProcessRequest extends TDRunnable {
         );
     }
 
+    /**
+     * This method is used to set the countTicket semaphore. We do it
+     * this way so that we don't unintentionally create new semaphores
+     * in each thread.
+     * @param countTicketSemaphore protects info from being accessed by
+     *                             multiple threads at the same time.
+     */
     public void addCountTicketSemaphore(Semaphore countTicketSemaphore) {
         this.countTicketSemaphore = countTicketSemaphore;
     }
 
+    /**
+     * This method is used to set the andonTicket semaphore. We do it
+     * this way so that we don't unintentionally create new semaphores
+     * in each thread.
+     * @param andonTicketSemaphore protects info from being accessed by
+     *                             multiple threads at the same time.
+     */
     public void addAndonTicketSemaphore(Semaphore andonTicketSemaphore) {
         this.andonTicketSemaphore = andonTicketSemaphore;
     }
 
+    /**
+     * This method is the first method run when a request is received by
+     * the program. This method will call the processTicketRequest
+     * method and if there are any errors, this will make sure that the
+     * errors are logged in the thread's history.
+     * @throws TDException this method throws the customized TD
+     * exception which shows common errors encountered in the TD
+     * package.
+     */
     @Override
     public void executeTask() throws TDException {
         try {
@@ -114,15 +146,34 @@ public class ProcessRequest extends TDRunnable {
         }
     }
 
+    /**
+     * This method controls the flow of the program for each incoming
+     * ticket request. When a request comes in, it will go through the
+     * process contained in this method.
+     * @throws TDException if an exception is thrown in one of the
+     * methods called in processTicketRequest, we would like it to be
+     * evaluated and recorded in the previous method.
+     */
     private void processTicketRequest() throws TDException {
         retrieveOneFormTicket();
 
         if (ACTION != ACTION_REQUESTED.SPAM) {
-            if (oneformTicket.containsAttribute(ANDON_ATTRIBUTE_ID)) {
+            if (!oneformTicket.containsAttribute(ANDON_ATTRIBUTE_ID)) {
                 createAndonTicket();
             }
+            createDepartmentTicket();
             if (!oneformTicket.containsAttribute(ONEFORM_DEPT_TICKET_ID)) {
-                createDepartmentTicket();
+                assert oneformTicket.containsAttribute(ONEFORM_DEPT_TICKET_ID) :
+                    "Oneform ticket must contain the Department Ticket ID " +
+                    "attribute to retrieve a department ticket";
+                debug.logNote("Department Ticket already created.");
+                retrieveDepartmentTicket(
+                    Integer.getInteger(
+                        oneformTicket.getCustomAttribute(ONEFORM_DEPT_TICKET_ID)
+                    ),
+                    departmentTicket.getAppId(),
+                    departmentTicket.getClass()
+                );
             }
         }
         manageCountData();
@@ -130,7 +181,15 @@ public class ProcessRequest extends TDRunnable {
         makeFinalChanges();
     }
 
-
+    /**
+     * The Teamdynamix package returns an object of the ticket class
+     * when you use the method getTicket, but we need the oneform ticket
+     * to be an object of the OneformTicket class. This method retrieves
+     * a ticket, deserializes it, and re-serializes it as a
+     * OneformTicket.
+     * @throws TDException this will throw an exception if the api call
+     * fails.
+     */
     private void retrieveOneFormTicket() throws TDException {
         Gson gson = new Gson();
         String json = gson.toJson(
@@ -146,11 +205,18 @@ public class ProcessRequest extends TDRunnable {
         debug.log("Oneform Ticket Id: " + oneformTicket.getId());
     }
 
+    /**
+     * This method determines what type of department ticket we will be
+     * working with throughout the rest of the program. It checks which
+     * office list option was selected by the email agent and, based on
+     * this, determines what type of ticket we need to create. If you
+     * create a new ticket class, add the case to this switch statement
+     * and create a new class which inherits from DepartmentTicket.
+     */
     private void createDepartmentTicket() {
         assert oneformTicket.containsAttribute(OFFICE_LIST_1_ATTRIBUTE_ID) :
             "The oneform ticket does not contain the office list attribute";
         switch (oneformTicket.getCustomAttribute(OFFICE_LIST_1_ATTRIBUTE_ID)) {
-
             case PATHWAY_OFFICE_LIST_VAL:
                 debug.logNote("Creating Pathway Ticket");
                 departmentTicket = new PathwayTicket(
@@ -221,7 +287,7 @@ public class ProcessRequest extends TDRunnable {
                     oneformTicket
                 );
                 break;
-            case UNIVERSITY_STORE_OFFICE_LIST_VAL:
+            case UNI_STORE_OFFICE_LIST_VAL:
                 debug.logNote("Creating University Store Ticket");
                 departmentTicket = new ByuiTicket(
                     debug.getHistory(),
@@ -239,12 +305,20 @@ public class ProcessRequest extends TDRunnable {
                     oneformTicket
                 );
         }
-        debug.log(
+        tickets.add(departmentTicket);
+        debug.logNote(
             departmentTicket.getClass().getSimpleName() + " added to tickets"
         );
-        tickets.add(departmentTicket);
     }
 
+    /**
+     * This method is in charge of retrieving the count ticket for the
+     * agent who handled the email ticket we are processing, and
+     * updating their count data based on what type of contact was used.
+     * We use the count semaphore here to protect the count data from
+     * being accessed by multiple sources, which would ruin the
+     * incrementation process.
+     */
     private void manageCountData() {
         boolean acquired = false;
         int attempts = 0;
@@ -295,16 +369,34 @@ public class ProcessRequest extends TDRunnable {
         }
     }
 
+    /**
+     * This method is in charge of retrieving the department ticket,
+     * deserializing it, then re-serializing it as an inherited object of
+     * the DepartmentTicket class.
+     * @param ticketId The ticket ID of the department ticket.
+     * @param appId The Application ID of the department ticket.
+     * @param ticketClass which class we want to make the department
+     *                    ticket.
+     * @throws TDException if the api is unsuccessful in retrieving the
+     * department ticket, we throw a TDException.
+     */
     private void retrieveDepartmentTicket(int ticketId, int appId,
             Class<?> ticketClass) throws TDException {
         Gson gson = new Gson();
         String json = gson.toJson(pull.getTicket(appId, ticketId));
         DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
-        ticket.initializeTicket(debug.getHistory());
+        ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
         this.departmentTicket = ticket;
         this.departmentTicket.setRetrieved(true);
     }
 
+    /**
+     * This method retrieves the count ticket, deserializes it, and
+     * re-serializes it as a CountTicket object.
+     * @param countTicketID The ticket ID of the count ticket.
+     * @throws TDException if the api is unsuccessful in retrieving the
+     * department ticket, we throw a TDException.
+     */
     private void retrieveCountTicket(int countTicketID) throws TDException {
         // TODO: Consolidate this and the retrieve oneform ticket method
         Gson gson = new Gson();
@@ -323,7 +415,16 @@ public class ProcessRequest extends TDRunnable {
         this.countTicket.setRetrieved(true);
     }
 
+    /**
+     * This method creates an andon cord ticket. These tickets are used
+     * by the Customer Experience Department to work on issues that are
+     * spotted by our email agents. If the email agent selects the Andon
+     * Cord checkbox on the email oneform, then we need to notify
+     * Customer Experience by creating an AndonTicket.
+     */
     private void createAndonTicket() {
+        if (!oneformTicket.containsAttribute(ANDON_ATTRIBUTE_ID))
+            return;
         String isAndon = oneformTicket.getCustomAttribute(ANDON_ATTRIBUTE_ID);
         assert isAndon.equals(ANDON_YES) :
             "The andon ticket value is included, but has an unrecognized value";
@@ -336,8 +437,16 @@ public class ProcessRequest extends TDRunnable {
         tickets.add(andonTicket);
     }
 
+    /**
+     * This method uploads all completed tickets to the Teamdynamix
+     * servers. It sends all tickets contained in the tickets in the
+     * tickets ArrayList.
+     * @throws TDException if the api is unsuccessful in retrieving the
+     * department ticket, we throw a TDException.
+     */
     private void sendCompletedTickets() throws TDException {
         for (GeneralTicket ticket  : tickets) {
+            assert ticket != null : "A ticket has not been initialized";
             if (Settings.displayTicketBodies)
                 debug.log("Uploading " + ticket.toString());
             debug.logNote(
@@ -366,14 +475,24 @@ public class ProcessRequest extends TDRunnable {
         }
     }
 
+    /**
+     * Some tickets contain information that we only have access to
+     * after they have been uploaded, so we use this method to work with
+     * that information.
+     */
     private void makeFinalChanges() {
-        if (departmentTicket != null && !departmentTicket.isRetrieved())
+        if (departmentTicket != null && !departmentTicket.isRetrieved()) {
             this.addAttachments();
             oneformTicket.setDepartmentId(departmentTicket.getId());
+        }
         if (andonTicket != null)
             oneformTicket.setAndonId(andonTicket.getId());
     }
 
+    /**
+     * This method retrieves the attachments attached to the oneform
+     * ticket and attaches them to the department ticket.
+     */
     private void addAttachments() {
         assert departmentTicket != null :
             "This method is being called unnecessarily, department " +

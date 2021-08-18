@@ -37,7 +37,7 @@ public class LoggingSupervisor {
     }
 
     public void logNote(String note) {
-        if (!Settings.debug)
+        if (!Settings.displayNotes)
             return;
         StackTraceElement[] stackTraceElements =
             Thread.currentThread().getStackTrace();
@@ -52,7 +52,7 @@ public class LoggingSupervisor {
 
     public void logNote(Class<?> currentClass, String currentMethod,
                         String message) {
-        if (!Settings.debug)
+        if (!Settings.displayNotes)
             return;
         setCurrentMethod(currentMethod);
         log(currentClass, message);

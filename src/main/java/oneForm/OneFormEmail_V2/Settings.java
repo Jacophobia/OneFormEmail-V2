@@ -6,6 +6,10 @@ public class Settings {
     // detailed.
     public static boolean debug = false;
 
+    // This determines whether notes will be added to the history. Turn
+    // this on if you want the papertrail to display far more detail.
+    public static boolean displayNotes = true;
+
     // If you would like tickets to be created in the teamdynamix
     // sandbox instead of the live version of teamdynamix then set this
     // value to true.
