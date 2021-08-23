@@ -16,7 +16,7 @@ import java.util.Date;
 /**
  * Contains functions to set up BootStrap and the Heroku API
  *
- * @author Robby Breidenbaugh & Dallin Crawley
+ * @author Jacob Morgan, Robby Breidenbaugh, & Dallin Crawley
  * @since 12/21/20
  */
 

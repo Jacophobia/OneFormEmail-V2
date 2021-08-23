@@ -75,39 +75,49 @@ class CountTicket extends GeneralTicket {
         int spamVolume = (int) Float.parseFloat(
             this.getCustomAttribute(SPAM_VOLUME)
         );
+        debug.logNote("Original SPAM count : " + spamVolume);
         spamVolume++;
         this.addCustomAttribute(SPAM_VOLUME, String.valueOf(spamVolume));
+        debug.logNote("Updated SPAM count : " + spamVolume);
     }
 
     private void incrementResolved() {
         int resolvedVolume = (int) Float.parseFloat(
             this.getCustomAttribute(REPLY_VOLUME)
         );
+        debug.logNote("Original RESOLVED count : " + resolvedVolume);
         resolvedVolume++;
         this.addCustomAttribute(REPLY_VOLUME, String.valueOf(resolvedVolume));
+        debug.logNote("Updated RESOLVED count : " + resolvedVolume);
     }
 
     private void incrementEscalated() {
         int escalatedVolume = (int) Float.parseFloat(
             this.getCustomAttribute(ESCALATED_VOLUME)
         );
+        debug.logNote("Original ESCALATED count : " + escalatedVolume);
         escalatedVolume++;
         this.addCustomAttribute(
             ESCALATED_VOLUME,
             String.valueOf(escalatedVolume)
         );
+        debug.logNote("Updated ESCALATED count : " + escalatedVolume);
     }
 
     private void incrementOverall() {
         int totalVolume = (int) Float.parseFloat(
             this.getCustomAttribute(EMAIL_VOLUME)
         );
+        debug.logNote("Original Overall count : " + totalVolume);
         totalVolume++;
         this.addCustomAttribute(EMAIL_VOLUME, String.valueOf(totalVolume));
+        debug.logNote("Updated Overall count : " + totalVolume);
+
     }
 
     @Override
     public void prepareTicketUpload() throws TDException {
+        this.incrementCount();
         super.prepareTicketUpload();
     }
 }

@@ -67,6 +67,61 @@ public class RequestCollector {
         return 123;
     }
 
+    /**
+     * If you would like to adjust the program's settings while the
+     * program is still running, you can use this endpoint to do so.
+     * @param debug determines whether the program displays debugging
+     *              information.
+     * @param displayNotes determines if low priority messages should be
+     *                     added to the history.
+     * @param sandbox determines whether tickets should be created in
+     *                TDSandbox or TDNext.
+     * @param displayInfo If this is true then only errors and warnings
+     *                    will be displayed. Only enable this if you
+     *                    need to conserve as much space as possible on
+     *                    the papertrail.
+     * @param displayTicketBodies set this value to true if you want to
+     *                            display the contents of a ticket when
+     *                            it is uploaded and when errors occur.
+     * @return the status code of the program.
+     */
+    @RequestMapping(value = "/adjust-settings", params = {
+        "debug", "displayNotes", "sandbox", "displayInfo", "displayTicketBodies"
+    })
+    public @ResponseBody
+    int adjustSettings(
+        @RequestParam(value = "debug") boolean debug,
+        @RequestParam(value = "displayNotes") boolean displayNotes,
+        @RequestParam(value = "sandbox") boolean sandbox,
+        @RequestParam(value = "displayInfo") boolean displayInfo,
+        @RequestParam(value = "displayTicketBodies") boolean displayTicketBodies
+            ) {
+        System.out.println("\nSettings Changed From - ");
+        System.out.println(
+            "\ndebug               :  " + Settings.debug + "\n" +
+            "displayNotes        :  " + Settings.displayNotes + "\n" +
+            "sandbox             :  " + Settings.sandbox + "\n" +
+            "displayInfo         :  " + Settings.displayInfo + "\n" +
+            "displayTicketBodies :  " + Settings.displayTicketBodies
+        );
+
+        Settings.debug = debug;
+        Settings.displayNotes = displayNotes;
+        Settings.sandbox = sandbox;
+        Settings.displayInfo = displayInfo;
+        Settings.displayTicketBodies = displayTicketBodies;
+
+        System.out.println("\nTo - ");
+        System.out.println(
+            "\ndebug               :  " + Settings.debug + "\n" +
+            "displayNotes        :  " + Settings.displayNotes + "\n" +
+            "sandbox             :  " + Settings.sandbox + "\n" +
+            "displayInfo         :  " + Settings.displayInfo + "\n" +
+            "displayTicketBodies :  " + Settings.displayTicketBodies
+        );
+        return 123;
+    }
+
 
     /**
      * If you need to run a large number of tickets all at once, use

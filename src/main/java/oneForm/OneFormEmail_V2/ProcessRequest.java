@@ -162,19 +162,28 @@ public class ProcessRequest extends TDRunnable {
                 createAndonTicket();
             }
             createDepartmentTicket();
-            if (!oneformTicket.containsAttribute(ONEFORM_DEPT_TICKET_ID)) {
+            if (oneformTicket.containsAttribute(ONEFORM_DEPT_TICKET_ID)) {
                 assert oneformTicket.containsAttribute(ONEFORM_DEPT_TICKET_ID) :
                     "Oneform ticket must contain the Department Ticket ID " +
                     "attribute to retrieve a department ticket";
-                debug.logNote("Department Ticket already created.");
+                assert departmentTicket != null :
+                    "Department ticket was not initialized";
+                debug.logNote(
+                    "Department Ticket already created. ID: " +
+                    oneformTicket.getCustomAttribute(ONEFORM_DEPT_TICKET_ID)
+                );
                 retrieveDepartmentTicket(
-                    Integer.getInteger(
+                    Integer.parseInt(
                         oneformTicket.getCustomAttribute(ONEFORM_DEPT_TICKET_ID)
                     ),
                     departmentTicket.getAppId(),
                     departmentTicket.getClass()
                 );
             }
+            tickets.add(departmentTicket);
+            debug.logNote(
+                departmentTicket.getClass().getSimpleName() + " added."
+            );
         }
         manageCountData();
         sendCompletedTickets();
@@ -305,10 +314,6 @@ public class ProcessRequest extends TDRunnable {
                     oneformTicket
                 );
         }
-        tickets.add(departmentTicket);
-        debug.logNote(
-            departmentTicket.getClass().getSimpleName() + " added to tickets"
-        );
     }
 
     /**
@@ -320,6 +325,7 @@ public class ProcessRequest extends TDRunnable {
      * incrementation process.
      */
     private void manageCountData() {
+        TeamDynamix api = Settings.sandbox ? push : pull;
         boolean acquired = false;
         int attempts = 0;
         while (!acquired) {
@@ -337,7 +343,7 @@ public class ProcessRequest extends TDRunnable {
         }
         try {
             ArrayList<Map<String, String>> countReportRows =
-                pull.getReport(
+                api.getReport(
                     COUNT_TICKET_REPORT_ID,
                     true,
                     ""
@@ -356,11 +362,13 @@ public class ProcessRequest extends TDRunnable {
             }
             if (!found) {
                 countTicket = new CountTicket(history, oneformTicket, ACTION);
+                this.tickets.add(countTicket);
             }
-            countTicket.incrementCount();
-            countTicketSemaphore.release();
-            this.tickets.add(countTicket);
-
+            else {
+                countTicket.prepareTicketUpload();
+                api.editTicket(false, countTicket);
+                countTicketSemaphore.release();
+            }
         }
         catch (TDException exception){
             debug.logError("Unable to modify count ticket.");
@@ -383,10 +391,17 @@ public class ProcessRequest extends TDRunnable {
     private void retrieveDepartmentTicket(int ticketId, int appId,
             Class<?> ticketClass) throws TDException {
         Gson gson = new Gson();
-        String json = gson.toJson(pull.getTicket(appId, ticketId));
+        String json;
+        if (!Settings.sandbox)
+            json = gson.toJson(pull.getTicket(appId, ticketId));
+        else
+            json = gson.toJson(push.getTicket(appId, ticketId));
         DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
         ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
         this.departmentTicket = ticket;
+        debug.logNote(
+            "Department ticket retrieved ID: " + departmentTicket.getId()
+        );
         this.departmentTicket.setRetrieved(true);
     }
 
@@ -399,9 +414,10 @@ public class ProcessRequest extends TDRunnable {
      */
     private void retrieveCountTicket(int countTicketID) throws TDException {
         // TODO: Consolidate this and the retrieve oneform ticket method
+        TeamDynamix api = Settings.sandbox ? push : pull;
         Gson gson = new Gson();
         String json = gson.toJson(
-            pull.getTicket(OPERATIONS_APP_ID, countTicketID)
+            api.getTicket(OPERATIONS_APP_ID, countTicketID)
         );
         CountTicket retrievedCountTicket = gson.fromJson(
             json, CountTicket.class
@@ -448,25 +464,12 @@ public class ProcessRequest extends TDRunnable {
         for (GeneralTicket ticket  : tickets) {
             assert ticket != null : "A ticket has not been initialized";
             if (Settings.displayTicketBodies)
-                debug.log("Uploading " + ticket.toString());
+                debug.log("Uploading " + ticket);
             debug.logNote(
                 "Preparing " + ticket.getClass().getSimpleName() + " for upload"
             );
 
-            ticket.prepareTicketUpload();
-
-            Ticket uploadedTicket;
-            if (!ticket.isRetrieved()) {
-                uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
-            }
-            else {
-                uploadedTicket = pull.editTicket(false, ticket);
-            }
-
-            assert uploadedTicket != null :
-                "The uploaded ticket was never initialized.";
-
-            ticket.setCreatedTicket(uploadedTicket);
+            uploadTicket(ticket);
 
             debug.log(
                 ticket.getClass().getSimpleName() + " uploaded. ID : " +
@@ -479,23 +482,58 @@ public class ProcessRequest extends TDRunnable {
      * Some tickets contain information that we only have access to
      * after they have been uploaded, so we use this method to work with
      * that information.
+     * @throws TDException this is thrown if one of the methods fails
+     * while trying to connect to the Teamdynamix server.
      */
-    private void makeFinalChanges() {
+    private void makeFinalChanges() throws TDException {
         if (departmentTicket != null && !departmentTicket.isRetrieved()) {
             this.addAttachments();
             oneformTicket.setDepartmentId(departmentTicket.getId());
         }
         if (andonTicket != null)
             oneformTicket.setAndonId(andonTicket.getId());
+        uploadTicket(oneformTicket);
+
+        if (!countTicket.isRetrieved())
+            countTicketSemaphore.release();
     }
 
     /**
-     * This method retrieves the attachments attached to the oneform
-     * ticket and attaches them to the department ticket.
+     * This method is responsible for uploading tickets and handling
+     * preparatory processes that need to occur every time a ticket is
+     * uploaded.
+     * @param ticket an object that inherits from the GeneralTicket
+     *               class.
+     * @throws TDException if the ticket upload fails this will throw a
+     * TDException.
+     */
+    private void uploadTicket(GeneralTicket ticket) throws TDException {
+        ticket.prepareTicketUpload();
+
+        Ticket uploadedTicket;
+        if (!ticket.isRetrieved())
+            uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
+        else {
+            if (ticket.getClass() == oneformTicket.getClass())
+                uploadedTicket = pull.editTicket(false, ticket);
+            else
+                uploadedTicket = push.editTicket(false, ticket);
+        }
+        assert uploadedTicket != null :
+            "The uploaded ticket was never initialized.";
+
+        ticket.setCreatedTicket(uploadedTicket);
+    }
+
+    /**
+     * This method retrieves all attachments from the oneform ticket and
+     * attaches them to the department ticket.
      */
     private void addAttachments() {
+        assert oneformTicket != null :
+            "The oneform ticket has not been initialized";
         assert departmentTicket != null :
-            "This method is being called unnecessarily, department " +
+            "This method is being called unnecessarily, the department " +
             "ticket has not been initialized.";
         assert departmentTicket.getId() != 0 :
             "The department ticket was not uploaded.";

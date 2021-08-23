@@ -41,7 +41,7 @@ public class RequestManager extends TDThreadManager {
                 taskAdded = false;
             }
         }
-        if (threadsLaunched % 5 == 4) {
+        if (threadsLaunched % 9 == 8 && debug.getHistory().size() > 0) {
             debug.displayLog();
         }
     }
