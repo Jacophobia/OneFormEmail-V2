@@ -24,7 +24,8 @@ import static oneForm.OneFormEmail_V2.RequestCollector.*;
 public class ProcessRequest extends TDRunnable {
     // Constants
     private final int    ONE_FORM_APPLICATION_ID       = 48;
-    private final int    OFFICE_LIST_1_ATTRIBUTE_ID    = 10329;
+    private final int    OFFICE_LIST_ID                = 10329;
+    private final String SPAM_OFFICE_ID                = "36076";
     private final int    ONEFORM_DEPT_TICKET_ID        = 11452;
     private final String ACADEMIC_OFFICE_LIST_VAL      = "31724";
     private final String ACCOUNTING_OFFICE_LIST_VAL    = "31723";
@@ -157,7 +158,12 @@ public class ProcessRequest extends TDRunnable {
     private void processTicketRequest() throws TDException {
         retrieveOneFormTicket();
 
-        if (ACTION != ACTION_REQUESTED.SPAM) {
+        if (
+            ACTION != ACTION_REQUESTED.SPAM &&
+            oneformTicket.containsAttribute(OFFICE_LIST_ID) &&
+            !oneformTicket.getCustomAttribute(OFFICE_LIST_ID)
+                .equals(SPAM_OFFICE_ID) &&
+            oneformTicket.isValidRequest()) {
             if (!oneformTicket.containsAttribute(ANDON_ATTRIBUTE_ID)) {
                 createAndonTicket();
             }
@@ -223,9 +229,9 @@ public class ProcessRequest extends TDRunnable {
      * and create a new class which inherits from DepartmentTicket.
      */
     private void createDepartmentTicket() {
-        assert oneformTicket.containsAttribute(OFFICE_LIST_1_ATTRIBUTE_ID) :
+        assert oneformTicket.containsAttribute(OFFICE_LIST_ID) :
             "The oneform ticket does not contain the office list attribute";
-        switch (oneformTicket.getCustomAttribute(OFFICE_LIST_1_ATTRIBUTE_ID)) {
+        switch (oneformTicket.getCustomAttribute(OFFICE_LIST_ID)) {
             case PATHWAY_OFFICE_LIST_VAL:
                 debug.logNote("Creating Pathway Ticket");
                 departmentTicket = new PathwayTicket(
@@ -352,12 +358,15 @@ public class ProcessRequest extends TDRunnable {
             for (Map<String, String> row : countReportRows) {
                 String requestorName = row.get("CustomerName");
                 int ticketId = (int) Float.parseFloat(row.get("TicketID"));
-                if (requestorName.equals(oneformTicket.getAgentName()) &&
-                    !found) {
-                    debug.log("Agent name : " + requestorName);
-                    debug.log("Count Ticket ID : " + ticketId);
-                    retrieveCountTicket(ticketId);
-                    found = true;
+                if (requestorName != null) {
+                    if (requestorName.equals(oneformTicket.getAgentName()) &&
+                        !found) {
+                        debug.log("Count ticket located.");
+                        debug.log("Agent name : " + requestorName);
+                        debug.log("Count Ticket ID : " + ticketId);
+                        retrieveCountTicket(ticketId);
+                        found = true;
+                    }
                 }
             }
             if (!found) {
@@ -397,10 +406,11 @@ public class ProcessRequest extends TDRunnable {
         else
             json = gson.toJson(push.getTicket(appId, ticketId));
         DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
+        ticket.setAttributes(new ArrayList<>());
         ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
         this.departmentTicket = ticket;
         debug.logNote(
-            "Department ticket retrieved ID: " + departmentTicket.getId()
+            "Department ticket retrieved, ID: " + departmentTicket.getId()
         );
         this.departmentTicket.setRetrieved(true);
     }
@@ -496,6 +506,7 @@ public class ProcessRequest extends TDRunnable {
 
         if (!countTicket.isRetrieved())
             countTicketSemaphore.release();
+
     }
 
     /**
@@ -510,14 +521,22 @@ public class ProcessRequest extends TDRunnable {
     private void uploadTicket(GeneralTicket ticket) throws TDException {
         ticket.prepareTicketUpload();
 
-        Ticket uploadedTicket;
-        if (!ticket.isRetrieved())
-            uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
-        else {
-            if (ticket.getClass() == oneformTicket.getClass())
-                uploadedTicket = pull.editTicket(false, ticket);
-            else
-                uploadedTicket = push.editTicket(false, ticket);
+        Ticket uploadedTicket = null;
+        try {
+            if (!ticket.isRetrieved())
+                uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
+            else {
+                if (ticket.getClass() == oneformTicket.getClass())
+                    uploadedTicket = pull.editTicket(false, ticket);
+                else
+                    uploadedTicket = push.editTicket(false, ticket);
+            }
+        }
+        catch (TDException exception) {
+            assert false : "Unable to upload the ticket";
+            debug.logError(
+                "Unable to upload " + ticket.getClass().getSimpleName()
+            );
         }
         assert uploadedTicket != null :
             "The uploaded ticket was never initialized.";

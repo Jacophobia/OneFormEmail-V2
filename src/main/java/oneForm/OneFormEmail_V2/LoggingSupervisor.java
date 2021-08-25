@@ -114,7 +114,7 @@ public class LoggingSupervisor {
     }
 
     public void logWarning(Class<?> currentClass, String currentMethod,
-                           String message) {
+            String message) {
         setCurrentMethod(currentMethod);
         logWarning(currentClass, message);
     }
@@ -176,7 +176,7 @@ public class LoggingSupervisor {
     }
 
     public void logError(Class<?> currentClass, String currentMethod,
-                         String message) {
+            String message) {
         setCurrentMethod(currentMethod);
         logError(currentClass, message);
     }

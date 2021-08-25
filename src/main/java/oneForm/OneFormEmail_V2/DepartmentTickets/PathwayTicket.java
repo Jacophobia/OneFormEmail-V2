@@ -52,6 +52,7 @@ public class PathwayTicket extends DepartmentTicket {
     private final String TAG_TECHNICAL_ISSUES = "36701";
     private final String TAG_REGISTRATION_ISSUES = "36702";
     private final String TAG_ALL_OTHER_QUESTIONS = "36703";
+    private final String TAG_COURSE_MATERIALS = "36926";
 
     private final int ACCOUNTING_ONE_FORM_TICKETID_TAG = 11013;
     private final int BYUI_TICKETS_ONE_FORM_TICKETID_TAG = 11015;
@@ -93,6 +94,16 @@ public class PathwayTicket extends DepartmentTicket {
 
     public PathwayTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
+        findApplicationId();
+    }
+
+    @Override
+    public void initializeTicket(History history, OneformTicket oneformTicket) {
+        super.initializeTicket(history, oneformTicket);
+        findApplicationId();
+    }
+
+    private void findApplicationId() {
         // If you need to add a tag to the list of available pathway
         // tickets, be sure to add it to this list. You won't need to
         // worry about changing much of the code, because this will
@@ -123,14 +134,16 @@ public class PathwayTicket extends DepartmentTicket {
             case TAG_ALL_OTHER_QUESTIONS:
                 applicationID = BYUI_TICKETS_APP_ID;
                 break;
+            case TAG_COURSE_MATERIALS:
+                applicationID = BYUI_TICKETS_APP_ID;
+                break;
             default:
                 assert false :
                     "There is an uncaught case in this switch statement. " +
-                    "Attribute: " +
-                    this.oneformTicket.getCustomAttribute(ONEFORM_TAG_ID);
+                        "Attribute: " +
+                        this.oneformTicket.getCustomAttribute(ONEFORM_TAG_ID);
                 applicationID = BYUI_TICKETS_APP_ID;
         }
-
     }
 
     @Override

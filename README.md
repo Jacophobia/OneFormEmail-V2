@@ -4,7 +4,7 @@ This is version two of the Email OneForm.
 If you are just editing the OneForm-Email for the first time, please read the 
 [Setup Guide](SETUP_GUIDE.md).
 
-## RequestManager
+## [RequestManager](src/main/java/oneForm/OneFormEmail_V2/RequestManager.java)
     Description:
     This class will wait for a request to be made, and when one is, it will 
     launch a thread which runs the tasks contained in ProcessRequest.
@@ -17,7 +17,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     RequestManager()
     addServiceRequest(:ProcessRequest, :History, :String): void
 
-## ProcessRequest
+## [ProcessRequest](src/main/java/oneForm/OneFormEmail_V2/ProcessRequest.java)
     Description:
     This class will handle each individual request from the threadmanager. When 
     a request is sent to the program, an object of this class will be created 
@@ -45,10 +45,10 @@ If you are just editing the OneForm-Email for the first time, please read the
     createTickets(ticketID): void
     getDepartmentID(oneFormTicket): int
 
-## LoggingManager
+## [LoggingSupervisor](src/main/java/oneForm/OneFormEmail_V2/LoggingSupervisor.java)
     Description:
     This is a class which simplifies the logging process. A single 
-    LoggingManager object will be created when the ProcessRequest object is 
+    LoggingSupervisor object will be created when the ProcessRequest object is 
     created. I recommend naming it something short and sweet like debug. This 
     will contain a history object which will be filled with loggingEvent 
     objects whenever the log method is called. Whenever you enter a new class 
@@ -68,7 +68,19 @@ If you are just editing the OneForm-Email for the first time, please read the
     setMethod(:String)
     setClass(:class)
 
-## *GeneralTicket*
+## [ErrorTicket](src/main/java/oneForm/OneFormEmail_V2/ErrorTicket.java)
+    Description:
+    This ticket is used to log errors since the papertrail only goes back a few
+    days. Errors will be logged on these tickets and will appear on the report:
+    Oneform Errors #19102. This will help us keep a record of all errors.
+    
+    extends Ticket 
+    Public:
+    ErrorTicket(:String, :String)
+    ErrorTicket(:String)
+    logError(:String)
+
+## [*GeneralTicket*](src/main/java/oneForm/OneFormEmail_V2/GeneralTicket.java)
     Description:
     This is the basic model for all tickets that will be created in this 
     program. It contains some abstract methods which need to be overriden to 
@@ -81,7 +93,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     uploadTicket(): void
 
-### AndonTicket
+### [AndonTicket](src/main/java/oneForm/OneFormEmail_V2/AndonTicket.java)
     Description:
     This ticket is created when the andon cord option is selected by the agent.
     
@@ -89,7 +101,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-### CountTicket
+### [CountTicket](src/main/java/oneForm/OneFormEmail_V2/CountTicket.java)
     Description:
     Creates a count ticket for the count programs to keep track of. 
     
@@ -97,7 +109,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-### *DepartmentTicket*
+### [*DepartmentTicket*](src/main/java/oneForm/OneFormEmail_V2/DepartmentTicket.java)
     Description:
     An abstract generic department ticket containing all of the attributes and methods 
     used by the different department tickets. 
@@ -106,7 +118,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-#### PathwayTicket
+#### [PathwayTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/PathwayTicket.java)
     Description:
     Creates a ticket for Pathway Worldwide and Pathway Connect contacts. 
     
@@ -114,7 +126,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-#### ByuiTicket
+#### [ByuiTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/ByuiTicket.java)
     Description:
     Creates ticket for the SRR department.
     
@@ -122,7 +134,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-#### AccountingTicket
+#### [AccountingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AccountingTicket.java)
     Description:
     Creates ticket for the SRR department.
     
@@ -130,7 +142,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-#### AdmissionsTicket
+#### [AdmissionsTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdmissionsTicket.java)
     Description:
     Creates ticket for the SRR department.
     
@@ -138,7 +150,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-#### AdvisingTicket
+#### [AdvisingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdvisingTicket.java)
     Description:
     Creates ticket for the SRR department.
     
@@ -146,7 +158,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-#### FinancialAidTicket
+#### [FinancialAidTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/FinancialAidTicket.java)
     Description:
     Creates ticket for the SRR department.
     
@@ -154,7 +166,7 @@ If you are just editing the OneForm-Email for the first time, please read the
     Public:
     Private:
 
-#### SrrTicket
+#### [SrrTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/SrrTicket.java)
     Description:
     Creates ticket for the SRR department.
     

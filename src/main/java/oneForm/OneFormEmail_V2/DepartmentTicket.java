@@ -156,7 +156,7 @@ public abstract class DepartmentTicket extends GeneralTicket {
      * departmentTicket'sName.toString() or
      * System.out.println(departmentTicket'sName).
      *
-     * This function overrides the built in toString function that every
+     * This function overrides the built-in toString function that every
      * class has so that department tickets display their contents when
      * printed rather than their location in memory.
      *

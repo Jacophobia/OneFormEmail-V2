@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import static oneForm.OneFormEmail_V2.ProcessRequest.pull;
 import static oneForm.OneFormEmail_V2.RequestCollector.ACTION_REQUESTED.*;
+import static oneForm.OneFormEmail_V2.RequestCollector.*;
 
 public class OneformTicket extends GeneralTicket {
     private final int ACTIONS_ATTR = 11398;
@@ -17,21 +18,26 @@ public class OneformTicket extends GeneralTicket {
     private final int OFFICE_ID = 10329;
     private final String OFFICE_SPAM = "36076";
     private final int DEPT_TICKET_ID = 11452;
+    private final int ONEFORM_TAG_ID = 10333;
+    private final int STATUS_NEW = 322;
+    private boolean isValidRequest = true;
 
 
-    private String DEFAULT_UID = "e578bb85-0041-e511-80d1-005056ac5ec6";
+    private final String DEFAULT_UID = "e578bb85-0041-e511-80d1-005056ac5ec6";
     ArrayList<ItemUpdate> feed;
     private String agentName;
     private String agentUID;
 
 
 
-    public OneformTicket(History history) {
+    public OneformTicket(History history, ACTION_REQUESTED ACTION)
+            throws TDException {
         super(history);
+        initializeTicket(history, ACTION);
     }
 
-    public void initializeTicket(History history,
-            RequestCollector.ACTION_REQUESTED ACTION) throws TDException {
+    public void initializeTicket(History history, ACTION_REQUESTED ACTION)
+            throws TDException {
         super.initializeTicket(history);
 
         if (ACTION == ESCALATED)
@@ -51,12 +57,17 @@ public class OneformTicket extends GeneralTicket {
                 !name.equals("BSC Robot") &&
                 !name.equals("System") &&
                 !name.equals("Ipaas Automation") &&
+                !name.equals("Automation Robot") &&
+                !name.equals(getRequestorName()) &&
                 !found
             ) {
                 this.agentName = itemUpdate.getCreatedFullName();
                 this.agentUID = itemUpdate.getCreatedUid();
                 found = true;
             }
+        }
+        if (this.feed.get(0).getCreatedFullName().equals(getRequestorName())) {
+            this.setStatusId(STATUS_NEW);
         }
         if (this.agentName == null || this.agentName.isEmpty()) {
             debug.logWarning(
@@ -74,6 +85,12 @@ public class OneformTicket extends GeneralTicket {
             );
             this.agentUID = DEFAULT_UID;
         }
+        isValidRequest = true;
+        if (!this.containsAttribute(ONEFORM_TAG_ID)) {
+            debug.logError("The email agent did not select a valid tag");
+            debug.logError("Email Agent: " + this.getAgentName());
+            this.isValidRequest = false;
+        }
     }
 
     public ArrayList<ItemUpdate> getFeed() {
@@ -86,6 +103,10 @@ public class OneformTicket extends GeneralTicket {
 
     public String getAgentUID() {
         return agentUID;
+    }
+
+    public boolean isValidRequest() {
+        return isValidRequest;
     }
 
     @Override

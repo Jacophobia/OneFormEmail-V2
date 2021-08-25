@@ -12,11 +12,8 @@ public class ErrorTicket extends Ticket {
         this.setStatusId(210);
         this.setPriorityId(21);
         this.setRequestorUid("f6c1bbd5-c4a2-eb11-85aa-0050f2eef487");
-        this.setDescription("Errors\n");
-        this.getAttributes().add(new CustomAttribute(
-            12204,
-            ticketID)
-        );
+        this.setDescription("Errors:\n");
+        this.getAttributes().add(new CustomAttribute(12204, ticketID));
     }
 
     public ErrorTicket(String ticketID, String error) {
@@ -25,7 +22,6 @@ public class ErrorTicket extends Ticket {
     }
 
     public void logError(String error) {
-        String errorLog = this.getDescription();
-        this.setDescription("\n" + errorLog);
+        this.setDescription(this.getDescription() + "\n" + error);
     }
 }

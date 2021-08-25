@@ -143,9 +143,9 @@ public class RequestCollector {
     public @ResponseBody
     int runReport(@RequestParam(value = "reportID") int reportId
             ) throws TDException, InterruptedException {
-        ArrayList<Map<String, String>> reportRows =
+        ArrayList<Map<String, String>> report =
             Td.getReport(reportId, true, "").getDataRows();
-        for (Map<String, String> row : reportRows) {
+        for (Map<String, String> row : report) {
             int ticketId = (int) Float.parseFloat(row.get("TicketID"));
             Ticket ticket = Td.getTicket(48, ticketId);
             // v v v v v v v v v v v v v v v v v v v v v v v v v v v v
