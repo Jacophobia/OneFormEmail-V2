@@ -535,7 +535,8 @@ public class ProcessRequest extends TDRunnable {
         catch (TDException exception) {
             assert false : "Unable to upload the ticket";
             debug.logError(
-                "Unable to upload " + ticket.getClass().getSimpleName()
+                "Unable to upload " + ticket.getClass().getSimpleName() +
+                ", the Office List may have been switched by the agent."
             );
         }
         assert uploadedTicket != null :

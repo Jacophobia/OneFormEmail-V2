@@ -58,7 +58,8 @@ public class AdmissionsTicket extends DepartmentTicket {
 
     @Override
     protected void setDepartmentSpecificAttributes() {
-        this.addCustomAttribute(OVERRIDE_ID, findOverrideEmailID());
+        if (oneformTicket.containsAttribute(ONEFORM_OVERRIDE_ID))
+            this.addCustomAttribute(OVERRIDE_ID, findOverrideEmailID());
         this.addCustomAttribute(TAG_ID, findTagValue());
         this.addCustomAttribute(
             ONE_FORM_TICKETID_TAG,
@@ -86,6 +87,8 @@ public class AdmissionsTicket extends DepartmentTicket {
     }
 
     private String findOverrideEmailID() {
+        assert oneformTicket.containsAttribute(ONEFORM_OVERRIDE_ID) :
+            "The oneform ticket does not contain the override attribute";
         switch(this.getCustomAttribute(ONEFORM_OVERRIDE_ID)) {
             case ONEFORM_OVERRIDE_YES:
                 return OVERRIDE_YES;

@@ -5,16 +5,16 @@ import oneForm.OneFormEmail_V2.OneformTicket;
 import td.api.Logging.History;
 
 public class AccountingTicket extends DepartmentTicket {
-    private final int TYPE_ID = 568;
-    private final int FORM_ID = 1691;
-    private final int STATUS_CLOSED = 417;
-    private final int STATUS_NEW = 413;
+    private final int    TYPE_ID = 568;
+    private final int    FORM_ID = 1691;
+    private final int    STATUS_CLOSED = 417;
+    private final int    STATUS_NEW = 413;
 
-    private final int TAG_ID = 10944;
+    private final int    TAG_ID = 10944;
 
-    private final int ONE_FORM_TICKETID_TAG = 11013;
+    private final int    ONE_FORM_TICKETID_TAG = 11013;
 
-    private final int BSC_AGENT_NAME = 5514;
+    private final int    BSC_AGENT_NAME = 5514;
 
     private final int    SENT_TO_LEVEL_2 = 3290;
     private final String SENT_TO_LEVEL_2_YES = "12813";

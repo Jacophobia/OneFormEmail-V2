@@ -1,5 +1,6 @@
 package oneForm.OneFormEmail_V2;
 
+import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
 import td.api.Logging.History;
 
@@ -38,10 +39,10 @@ public abstract class DepartmentTicket extends GeneralTicket {
 
     @Override
     public void prepareTicketUpload() throws TDException {
-        super.prepareTicketUpload();
         setRequiredAttributes();
         setAdditionalAttributes();
         setDepartmentSpecificAttributes();
+        super.prepareTicketUpload();
     }
 
     /**
@@ -167,6 +168,12 @@ public abstract class DepartmentTicket extends GeneralTicket {
      */
     @Override
     public String toString() {
+        String customAttributes = "{";
+        for (CustomAttribute attribute : this.getAttributes()) {
+            customAttributes +=
+                "\n\t" + attribute.getId() + " : " + attribute.getValue() + ",";
+        }
+        customAttributes += "\n}";
         return
             "\n      " + this.getClass().getSimpleName() +
             "\n" +
@@ -196,7 +203,8 @@ public abstract class DepartmentTicket extends GeneralTicket {
             "\n      * LocationRoomId : " + getLocationRoomId() +
             "\n      * ServiceId : " + getServiceId() +
             "\n      * ServiceOfferingID : " +
-            "\n      * ArticleId : " + getArticleId();
+            "\n      * ArticleId : " + getArticleId() +
+            "\n\tCustom Attributes\n" + customAttributes;
     }
 
 }
