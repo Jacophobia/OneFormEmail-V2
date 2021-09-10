@@ -142,6 +142,10 @@ public class PathwayTicket extends DepartmentTicket {
                     "There is an uncaught case in this switch statement. " +
                         "Attribute: " +
                         this.oneformTicket.getCustomAttribute(ONEFORM_TAG_ID);
+                debug.logError(
+                    "An invalid tag has been used with the pathway office " +
+                        "selected."
+                );
                 applicationID = BYUI_TICKETS_APP_ID;
         }
     }

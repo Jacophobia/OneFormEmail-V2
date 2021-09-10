@@ -34,7 +34,7 @@ public abstract class GeneralTicket extends Ticket {
 
     @Override
     public int getAppId() {
-        if (this.applicationID == 0) {
+        if (super.getAppId() != 0) {
             return super.getAppId();
         }
         return applicationID;
