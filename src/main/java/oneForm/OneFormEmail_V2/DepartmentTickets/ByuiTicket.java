@@ -5,7 +5,6 @@ import oneForm.OneFormEmail_V2.OneformTicket;
 import td.api.Logging.History;
 
 public class ByuiTicket extends DepartmentTicket {
-    private final int [] herpas = {548,564,563,565,537,546,542,547,538,545,540,544,710,727,712,391};
     private final int TYPE_ID = 370;
     private final int FORM_ID = 1969;
     private final int STATUS_CLOSED = 200;
@@ -61,6 +60,9 @@ public class ByuiTicket extends DepartmentTicket {
 
     @Override
     protected String findRequestorUid() {
+        final int [] herpas = {
+            548,564,563,565,537,546,542,547,538,545,540,544,710,727,712,391
+        };
         boolean inHerpaList = false;
         for (int herpa : herpas) {
             if (herpa == this.oneformTicket.getAccountId()) {

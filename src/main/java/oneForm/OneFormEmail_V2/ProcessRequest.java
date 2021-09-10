@@ -408,6 +408,9 @@ public class ProcessRequest extends TDRunnable {
         DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
         ticket.setAttributes(new ArrayList<>());
         ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
+        int x = departmentTicket.getAppId(); //FIXME: Delete this line
+        int y = ticket.getAppId(); //FIXME: Delete this line
+
         if (this.departmentTicket.getAppId() == ticket.getAppId()) {
             this.departmentTicket = ticket;
             this.departmentTicket.setRetrieved(true);
@@ -521,7 +524,7 @@ public class ProcessRequest extends TDRunnable {
         try {
             if (!ticket.isRetrieved()) {
                 uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
-                debug.log(ticket.getClass().getSimpleName() + "updated.");
+                debug.log(ticket.getClass().getSimpleName() + " created.");
             }
             else {
                 if (ticket.getClass() == oneformTicket.getClass())

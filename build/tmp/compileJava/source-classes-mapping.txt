@@ -2,9 +2,8 @@ oneForm/OneFormEmail_V2/DepartmentTickets/AdmissionsTicket.java
  oneForm.OneFormEmail_V2.DepartmentTickets.AdmissionsTicket
 oneForm/OneFormEmail_V2/Settings.java
  oneForm.OneFormEmail_V2.Settings
-oneForm/OneFormEmail_V2/RequestCollector.java
- oneForm.OneFormEmail_V2.RequestCollector
- oneForm.OneFormEmail_V2.RequestCollector$ACTION_REQUESTED
+oneForm/OneFormEmail_V2/Main.java
+ oneForm.OneFormEmail_V2.Main
 oneForm/OneFormEmail_V2/DepartmentTickets/AccountingTicket.java
  oneForm.OneFormEmail_V2.DepartmentTickets.AccountingTicket
 oneForm/OneFormEmail_V2/DepartmentTickets/FinancialAidTicket.java
@@ -36,5 +35,6 @@ oneForm/OneFormEmail_V2/ProcessRequest.java
  oneForm.OneFormEmail_V2.ProcessRequest
 oneForm/OneFormEmail_V2/LoggingSupervisor.java
  oneForm.OneFormEmail_V2.LoggingSupervisor
-oneForm/OneFormEmail_V2/Main.java
- oneForm.OneFormEmail_V2.Main
+oneForm/OneFormEmail_V2/RequestCollector.java
+ oneForm.OneFormEmail_V2.RequestCollector
+ oneForm.OneFormEmail_V2.RequestCollector$ACTION_REQUESTED
