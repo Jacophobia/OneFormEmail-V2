@@ -46,7 +46,7 @@ public class PathwayTicket extends DepartmentTicket {
 
     private final String TAG_ADVISING = "36696";
     private final String TAG_APPLICATION_QUESTIONS = "36697";
-    private final String TAG_COMPLAINTS_GRIEVANCES = "36698";
+    private final String TAG_COMPLAINTS_GRIEVANCES = "34726";
     private final String TAG_CHARGES_PAYMENTS = "36699";
     private final String TAG_FINANCIAL_AID = "36700";
     private final String TAG_TECHNICAL_ISSUES = "36701";

@@ -104,6 +104,8 @@ public class SrrTicket extends DepartmentTicket {
     }
 
     private String findOnlineOrCampus() {
+        if (!oneformTicket.containsAttribute(ONEFORM_ONLINE_OR_CAMPUS_ID))
+            return null;
         switch (oneformTicket.getCustomAttribute(ONEFORM_ONLINE_OR_CAMPUS_ID)) {
             case ONEFORM_ON_CAMPUS_ID:
                 return ON_CAMPUS_ID;
