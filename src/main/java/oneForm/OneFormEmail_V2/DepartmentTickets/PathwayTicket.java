@@ -92,6 +92,13 @@ public class PathwayTicket extends DepartmentTicket {
     private final String SRR_SENT_TO_LEVEL_2_YES = "15872";
     private final String SRR_SENT_TO_LEVEL_2_NO = "15873";
 
+    private static final int ACCOUNTING_FEED_ID = 11515;
+    private static final int ADMISSIONS_FEED_ID = 11516;
+    private static final int ADVISING_FEED_ID = 11647;
+    private static final int BYUI_TICKETS_FEED_ID = 11514;
+    private static final int FINANCIAL_AID_FEED_ID = 11517;
+    private static final int SRR_FEED_ID = 11518;
+
     public PathwayTicket(History history, OneformTicket oneformTicket) {
         super(history, oneformTicket);
         findApplicationId();
@@ -457,6 +464,30 @@ public class PathwayTicket extends DepartmentTicket {
                     "There is an uncaught case in this switch statement"
                 );
                 return BYUI_TICKETS_SENT_TO_LEVEL_2_NO;
+        }
+    }
+
+    @Override
+    protected int findTicketFeedID() {
+        assert this.applicationID != 0 :
+            "The applicationID attribute has not been initialized";
+        switch (applicationID) {
+            case ACCOUNTING_APP_ID:
+                return ACCOUNTING_FEED_ID;
+            case ADMISSIONS_APP_ID:
+                return ADMISSIONS_FEED_ID;
+            case ADVISING_APP_ID:
+                return ADVISING_FEED_ID;
+            case BYUI_TICKETS_APP_ID:
+                return BYUI_TICKETS_FEED_ID;
+            case FINANCIAL_AID_APP_ID:
+                return FINANCIAL_AID_FEED_ID;
+            case SRR_APP_ID:
+                return SRR_FEED_ID;
+            default:
+                assert false :
+                    "There is an uncaught case in this switch statement.";
+                return BYUI_TICKETS_FEED_ID;
         }
     }
 }

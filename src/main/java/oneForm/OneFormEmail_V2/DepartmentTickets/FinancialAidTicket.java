@@ -75,6 +75,11 @@ public class FinancialAidTicket extends DepartmentTicket {
         }
     }
 
+    @Override
+    protected int findTicketFeedID() {
+        return 11517;
+    }
+
     private String findLastNameInitialID() {
         switch (Character.toUpperCase(
             oneformTicket.getRequestorLastName().charAt(0))) {

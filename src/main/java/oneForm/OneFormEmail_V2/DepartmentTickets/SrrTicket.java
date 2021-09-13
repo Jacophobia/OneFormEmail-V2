@@ -129,4 +129,8 @@ public class SrrTicket extends DepartmentTicket {
         }
     }
 
+    @Override
+    protected int findTicketFeedID() {
+        return 11518;
+    }
 }

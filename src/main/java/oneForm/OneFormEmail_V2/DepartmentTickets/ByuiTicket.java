@@ -103,4 +103,8 @@ public class ByuiTicket extends DepartmentTicket {
         }
     }
 
+    @Override
+    protected int findTicketFeedID() {
+        return 11514;
+    }
 }

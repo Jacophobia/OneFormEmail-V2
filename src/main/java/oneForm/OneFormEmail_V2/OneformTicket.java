@@ -51,8 +51,8 @@ public class OneformTicket extends GeneralTicket {
         this.feed = pull.getTicketFeedEntries(this.getAppId(), this.getId());
         boolean found = false;
         String name;
-        for (ItemUpdate itemUpdate : feed) {
-            name = itemUpdate.getCreatedFullName();
+        for (ItemUpdate feedItem : feed) {
+            name = feedItem.getCreatedFullName();
             if (
                 !name.equals("BSC Robot")        &&
                 !name.equals("System")           &&
@@ -62,8 +62,8 @@ public class OneformTicket extends GeneralTicket {
                 !name.equals(getRequestorName()) &&
                 !found
             ) {
-                this.agentName = itemUpdate.getCreatedFullName();
-                this.agentUID = itemUpdate.getCreatedUid();
+                this.agentName = feedItem.getCreatedFullName();
+                this.agentUID = feedItem.getCreatedUid();
                 found = true;
             }
         }

@@ -103,5 +103,8 @@ public class AdmissionsTicket extends DepartmentTicket {
         }
     }
 
-
+    @Override
+    protected int findTicketFeedID() {
+        return 11516;
+    }
 }

@@ -2,6 +2,7 @@ package oneForm.OneFormEmail_V2;
 
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
+import td.api.ItemUpdate;
 import td.api.Logging.History;
 
 public abstract class DepartmentTicket extends GeneralTicket {
@@ -70,6 +71,8 @@ public abstract class DepartmentTicket extends GeneralTicket {
         setDescription(findDescription());
         setSourceId(findSourceId());
         setLocationId(findLocationId());
+        // ticket feed updater
+        this.addCustomAttribute(findTicketFeedID(), findTicketFeedContent());
     }
 
     //
@@ -129,6 +132,26 @@ public abstract class DepartmentTicket extends GeneralTicket {
     // context to the ticket so that those who view them understand the
     // incident which was recorded in the OneForm ticket.
     //
+    abstract protected int findTicketFeedID();
+
+    private String findTicketFeedContent() {
+        String name;
+        String description;
+        for (ItemUpdate feedItem : oneformTicket.getFeed()) {
+            name = feedItem.getCreatedFullName();
+            if (
+                !name.equals("BSC Robot")        &&
+                !name.equals("System")           &&
+                !name.equals("Ipaas Automation") &&
+                !name.equals("Automation Robot") &&
+                !name.equals("BYUI Ticketing")
+            ) {
+
+            }
+        }
+        return "0";
+    }
+
     private String findDescription() {
         return oneformTicket.getDescription();
     }
