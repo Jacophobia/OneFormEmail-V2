@@ -408,11 +408,16 @@ public class ProcessRequest extends TDRunnable {
         DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
         ticket.setAttributes(new ArrayList<>());
         ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
-        this.departmentTicket = ticket;
-        debug.logNote(
-            "Department ticket retrieved, ID: " + departmentTicket.getId()
-        );
-        this.departmentTicket.setRetrieved(true);
+        int x = departmentTicket.getAppId(); //FIXME: Delete this line
+        int y = ticket.getAppId(); //FIXME: Delete this line
+
+        if (this.departmentTicket.getAppId() == ticket.getAppId()) {
+            this.departmentTicket = ticket;
+            this.departmentTicket.setRetrieved(true);
+            debug.logNote(
+                "Department ticket retrieved, ID: " + departmentTicket.getId()
+            );
+        }
     }
 
     /**
@@ -480,11 +485,6 @@ public class ProcessRequest extends TDRunnable {
             );
 
             uploadTicket(ticket);
-
-            debug.log(
-                ticket.getClass().getSimpleName() + " uploaded. ID : " +
-                ticket.getId()
-            );
         }
     }
 
@@ -506,7 +506,6 @@ public class ProcessRequest extends TDRunnable {
 
         if (!countTicket.isRetrieved())
             countTicketSemaphore.release();
-
     }
 
     /**
@@ -523,13 +522,16 @@ public class ProcessRequest extends TDRunnable {
 
         Ticket uploadedTicket = null;
         try {
-            if (!ticket.isRetrieved())
+            if (!ticket.isRetrieved()) {
                 uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
+                debug.log(ticket.getClass().getSimpleName() + " created.");
+            }
             else {
                 if (ticket.getClass() == oneformTicket.getClass())
                     uploadedTicket = pull.editTicket(false, ticket);
                 else
                     uploadedTicket = push.editTicket(false, ticket);
+                debug.log(ticket.getClass().getSimpleName() + " updated.");
             }
         }
         catch (TDException exception) {
@@ -543,6 +545,10 @@ public class ProcessRequest extends TDRunnable {
             "The uploaded ticket was never initialized.";
 
         ticket.setCreatedTicket(uploadedTicket);
+
+        debug.log(
+            ticket.getClass().getSimpleName() + " ID : " + ticket.getId()
+        );
     }
 
     /**

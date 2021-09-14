@@ -2,6 +2,7 @@ package oneForm.OneFormEmail_V2;
 
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
+import td.api.ItemUpdate;
 import td.api.Logging.History;
 
 public abstract class DepartmentTicket extends GeneralTicket {
@@ -70,6 +71,8 @@ public abstract class DepartmentTicket extends GeneralTicket {
         setDescription(findDescription());
         setSourceId(findSourceId());
         setLocationId(findLocationId());
+        // ticket feed updater
+        this.addCustomAttribute(findTicketFeedID(), findTicketFeedContent());
     }
 
     //
@@ -129,6 +132,26 @@ public abstract class DepartmentTicket extends GeneralTicket {
     // context to the ticket so that those who view them understand the
     // incident which was recorded in the OneForm ticket.
     //
+    abstract protected int findTicketFeedID();
+
+    private String findTicketFeedContent() {
+        String name;
+        String description;
+        for (ItemUpdate feedItem : oneformTicket.getFeed()) {
+            name = feedItem.getCreatedFullName();
+            if (
+                !name.equals("BSC Robot")        &&
+                !name.equals("System")           &&
+                !name.equals("Ipaas Automation") &&
+                !name.equals("Automation Robot") &&
+                !name.equals("BYUI Ticketing")
+            ) {
+
+            }
+        }
+        return "0";
+    }
+
     private String findDescription() {
         return oneformTicket.getDescription();
     }
@@ -150,61 +173,4 @@ public abstract class DepartmentTicket extends GeneralTicket {
     abstract protected void setDepartmentSpecificAttributes();
     // TODO: Add all of the common custom attributes to the additional
     //  attributes method and use abstract find methods
-
-    /**
-     * If you ever want to view the contents of a department ticket for
-     * debugging purposes, you can either use
-     * departmentTicket'sName.toString() or
-     * System.out.println(departmentTicket'sName).
-     *
-     * This function overrides the built-in toString function that every
-     * class has so that department tickets display their contents when
-     * printed rather than their location in memory.
-     *
-     * I have already built in functionality that does this, so if you
-     * want to display the ticket bodies right before upload, go into
-     * the settings class and set the DisplayTicketBodies value to true.
-     * @return The contents of the Department Ticket
-     */
-    @Override
-    public String toString() {
-        String customAttributes = "{";
-        for (CustomAttribute attribute : this.getAttributes()) {
-            customAttributes +=
-                "\n\t" + attribute.getId() + " : " + attribute.getValue() + ",";
-        }
-        customAttributes += "\n}";
-        return
-            "\n      " + this.getClass().getSimpleName() +
-            "\n" +
-            "\n      *  - Editable" +
-            "\n      *  *  - Editable and Required" +
-            "\n" +
-            "\n      *  * TypeId : " + getTypeId() +
-            "\n      *  * Title : " + getTitle() +
-            "\n      *  * AccountId : " + getAccountId() +
-            "\n      *  * StatusId : " + getStatusId() +
-            "\n      *  * PriorityId : " + getPriorityId() +
-            "\n      *  * RequesterUID : " + getRequestorUid() +
-            "\n      * FormId : " + getFormId() +
-            "\n      * Description : " + getDescription() +
-            "\n      * SourceId : " + getSourceId() +
-            "\n      * ImpactId : " + getImpactId() +
-            "\n      * UrgencyId : " + getUrgencyId() +
-            "\n      * GoesOffHoldDate : " + getGoesOffHoldDate() +
-            "\n      * EstimatedMinutes : " + getEstimatedMinutes() +
-            "\n      * StartDate : " + getStartDate() +
-            "\n      * EndDate : " + getEndDate() +
-            "\n      * ResponsibleUID : " + getResponsibleUid() +
-            "\n      * ResponsibleGroupId : " + getResponsibleGroupId() +
-            "\n      * TimeBudget : " + getTimeBudget() +
-            "\n      * ExpensesBudget : " + getExpensesBudget() +
-            "\n      * LocationId : " + getLocationId() +
-            "\n      * LocationRoomId : " + getLocationRoomId() +
-            "\n      * ServiceId : " + getServiceId() +
-            "\n      * ServiceOfferingID : " +
-            "\n      * ArticleId : " + getArticleId() +
-            "\n\tCustom Attributes\n" + customAttributes;
-    }
-
 }

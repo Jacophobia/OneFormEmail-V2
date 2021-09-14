@@ -51,18 +51,19 @@ public class OneformTicket extends GeneralTicket {
         this.feed = pull.getTicketFeedEntries(this.getAppId(), this.getId());
         boolean found = false;
         String name;
-        for (ItemUpdate itemUpdate : feed) {
-            name = itemUpdate.getCreatedFullName();
+        for (ItemUpdate feedItem : feed) {
+            name = feedItem.getCreatedFullName();
             if (
-                !name.equals("BSC Robot") &&
-                !name.equals("System") &&
+                !name.equals("BSC Robot")        &&
+                !name.equals("System")           &&
                 !name.equals("Ipaas Automation") &&
                 !name.equals("Automation Robot") &&
+                !name.equals("BYUI Ticketing")   &&
                 !name.equals(getRequestorName()) &&
                 !found
             ) {
-                this.agentName = itemUpdate.getCreatedFullName();
-                this.agentUID = itemUpdate.getCreatedUid();
+                this.agentName = feedItem.getCreatedFullName();
+                this.agentUID = feedItem.getCreatedUid();
                 found = true;
             }
         }
@@ -86,8 +87,16 @@ public class OneformTicket extends GeneralTicket {
             this.agentUID = DEFAULT_UID;
         }
         isValidRequest = true;
-        if (!this.containsAttribute(ONEFORM_TAG_ID)) {
-            debug.logError("The email agent did not select a valid tag");
+        if (
+            (!containsAttribute(ONEFORM_TAG_ID) &&
+            !getCustomAttribute(OFFICE_ID).equals(OFFICE_SPAM)) ||
+            (ACTION != SPAM &&
+            getCustomAttribute(OFFICE_ID).equals(OFFICE_SPAM))
+        ) {
+            debug.logError(
+                "The email agent did not select a valid tag or a spam ticket" +
+                " may have been sent through the wrong endpoint."
+            );
             debug.logError("Email Agent: " + this.getAgentName());
             this.isValidRequest = false;
         }

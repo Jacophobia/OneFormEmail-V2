@@ -74,5 +74,8 @@ public class AdvisingTicket extends DepartmentTicket {
         }
     }
 
-
+    @Override
+    protected int findTicketFeedID() {
+        return 11647;
+    }
 }

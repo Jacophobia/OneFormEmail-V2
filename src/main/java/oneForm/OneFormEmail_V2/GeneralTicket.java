@@ -34,7 +34,7 @@ public abstract class GeneralTicket extends Ticket {
 
     @Override
     public int getAppId() {
-        if (this.applicationID == 0) {
+        if (super.getAppId() != 0) {
             return super.getAppId();
         }
         return applicationID;
@@ -124,6 +124,21 @@ public abstract class GeneralTicket extends Ticket {
         this.createdTicket = createdTicket;
     }
 
+    /**
+     * If you ever want to view the contents of a general ticket for
+     * debugging purposes, you can either use
+     * ticket'sName.toString() or
+     * System.out.println(ticket'sName).
+     *
+     * This function overrides the built-in toString function that every
+     * class has so that department tickets display their contents when
+     * printed rather than their location in memory.
+     *
+     * I have already built in functionality that does this, so if you
+     * want to display the ticket bodies right before upload, go into
+     * the settings class and set the DisplayTicketBodies value to true.
+     * @return The contents of the ticket
+     */
     public String toString() {
         String customAttributes = "{";
         for (CustomAttribute attribute : this.getAttributes()) {
@@ -131,37 +146,10 @@ public abstract class GeneralTicket extends Ticket {
                 "\n\t" + attribute.getId() + " : " + attribute.getValue() + ",";
         }
         customAttributes += "\n}";
-        return
-            "\n      " + this.getClass().getSimpleName() +
-            "\n" +
-            "\n      *  - Editable" +
-            "\n      *  *  - Editable and Required" +
-            "\n" +
-            "\n\t *  * TypeId : " + getTypeId() +
-            "\n\t *  * Title : " + getTitle() +
-            "\n\t *  * AccountId : " + getAccountId() +
-            "\n\t *  * StatusId : " + getStatusId() +
-            "\n\t *  * PriorityId : " + getPriorityId() +
-            "\n\t *  * RequesterUID : " + getRequestorUid() +
-            "\n\t * FormId : " + getFormId() +
-            "\n\t * Description : " + getDescription() +
-            "\n\t * SourceId : " + getSourceId() +
-            "\n\t * ImpactId : " + getImpactId() +
-            "\n\t * UrgencyId : " + getUrgencyId() +
-            "\n\t * GoesOffHoldDate : " + getGoesOffHoldDate() +
-            "\n\t * EstimatedMinutes : " + getEstimatedMinutes() +
-            "\n\t * StartDate : " + getStartDate() +
-            "\n\t * EndDate : " + getEndDate() +
-            "\n\t * ResponsibleUID : " + getResponsibleUid() +
-            "\n\t * ResponsibleGroupId : " + getResponsibleGroupId() +
-            "\n\t * TimeBudget : " + getTimeBudget() +
-            "\n\t * ExpensesBudget : " + getExpensesBudget() +
-            "\n\t * LocationId : " + getLocationId() +
-            "\n\t * LocationRoomId : " + getLocationRoomId() +
-            "\n\t * ServiceId : " + getServiceId() +
-            "\n\t * ServiceOfferingID : " +
-            "\n\t * ArticleId : " + getArticleId() +
-            "\n\tTicketId : " + getId() +
+
+        String nonEditableAttributes = "";
+        if (this.isRetrieved())
+            nonEditableAttributes = "\n\tTicketId : " + getId() +
             "\n\tParentId : " + getParentId() +
             "\n\tParentTitle : " + getParentTitle() +
             "\n\tParentClass : " + getParentClass() +
@@ -247,7 +235,38 @@ public abstract class GeneralTicket extends Ticket {
             "\n\tAttributes : " + getAttributes() +
             "\n\tAttachments : " + getAttachments() +
             "\n\tTasks : " + getTasks() +
-            "\n\tNotify : " + getNotify() +
+            "\n\tNotify : " + getNotify();
+        return
+            "\n      " + this.getClass().getSimpleName() +
+            "\n" +
+            "\n      *  - Editable" +
+            "\n      *  *  - Editable and Required" +
+            "\n" +
+            "\n\t *  * TypeId : " + getTypeId() +
+            "\n\t *  * Title : " + getTitle() +
+            "\n\t *  * AccountId : " + getAccountId() +
+            "\n\t *  * StatusId : " + getStatusId() +
+            "\n\t *  * PriorityId : " + getPriorityId() +
+            "\n\t *  * RequesterUID : " + getRequestorUid() +
+            "\n\t * FormId : " + getFormId() +
+            "\n\t * Description : " + getDescription() +
+            "\n\t * SourceId : " + getSourceId() +
+            "\n\t * ImpactId : " + getImpactId() +
+            "\n\t * UrgencyId : " + getUrgencyId() +
+            "\n\t * GoesOffHoldDate : " + getGoesOffHoldDate() +
+            "\n\t * EstimatedMinutes : " + getEstimatedMinutes() +
+            "\n\t * StartDate : " + getStartDate() +
+            "\n\t * EndDate : " + getEndDate() +
+            "\n\t * ResponsibleUID : " + getResponsibleUid() +
+            "\n\t * ResponsibleGroupId : " + getResponsibleGroupId() +
+            "\n\t * TimeBudget : " + getTimeBudget() +
+            "\n\t * ExpensesBudget : " + getExpensesBudget() +
+            "\n\t * LocationId : " + getLocationId() +
+            "\n\t * LocationRoomId : " + getLocationRoomId() +
+            "\n\t * ServiceId : " + getServiceId() +
+            "\n\t * ServiceOfferingID : " +
+            "\n\t * ArticleId : " + getArticleId() +
+            nonEditableAttributes +
             "\n\tCustom Attributes\n" + customAttributes;
     }
 }
