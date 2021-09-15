@@ -3,7 +3,15 @@ package oneForm.OneFormEmail_V2;
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
 import td.api.ItemUpdate;
+import td.api.ItemUpdateReply;
 import td.api.Logging.History;
+import td.api.TeamDynamix;
+
+import java.util.Date;
+import java.util.function.Consumer;
+
+import static oneForm.OneFormEmail_V2.ProcessRequest.pull;
+import static oneForm.OneFormEmail_V2.ProcessRequest.push;
 
 public abstract class DepartmentTicket extends GeneralTicket {
     protected OneformTicket oneformTicket;
@@ -23,6 +31,7 @@ public abstract class DepartmentTicket extends GeneralTicket {
     protected final int ONEFORM_TAG_ID = 10333;
     protected final int SUPPORT_CENTER_LOCATION_ID = 1;
     protected final int EMAIL_SOURCE_ID = 6;
+    private boolean feedCleared = false;
 
 
     public DepartmentTicket(History history, OneformTicket oneformTicket) {
@@ -36,6 +45,17 @@ public abstract class DepartmentTicket extends GeneralTicket {
     public void initializeTicket(History history, OneformTicket oneformTicket) {
         super.initializeTicket(history);
         this.oneformTicket = oneformTicket;
+        if (this.isRetrieved()) {
+            TeamDynamix api = Settings.sandbox ? push : pull;
+            try {
+                if (this.getAppId() != 0 && this.getId() != 0)
+                    this.feed = api.getTicketFeedEntries(
+                        this.getAppId(), this.getId()
+                    );
+            } catch (TDException exception) {
+                debug.logWarning("Unable to retrieve the ticket feed");
+            }
+        }
     }
 
     @Override
@@ -135,10 +155,21 @@ public abstract class DepartmentTicket extends GeneralTicket {
     abstract protected int findTicketFeedID();
 
     private String findTicketFeedContent() {
+        if (!feedCleared) {
+            feedCleared = true;
+            return "\n";
+        }
         String name;
-        String description;
+        String feedContent = "";
+        String feed = "\n";
+        String feedName = "";
+        String feedBody = "";
+        String feedTime;
+        int counter = 0;
         for (ItemUpdate feedItem : oneformTicket.getFeed()) {
+            assert feedItem != null : "Feed Item has no value";
             name = feedItem.getCreatedFullName();
+
             if (
                 !name.equals("BSC Robot")        &&
                 !name.equals("System")           &&
@@ -146,11 +177,55 @@ public abstract class DepartmentTicket extends GeneralTicket {
                 !name.equals("Automation Robot") &&
                 !name.equals("BYUI Ticketing")
             ) {
+                feedContent = "";
+                if (feedItem.getBody().contains("<br /><br />") ||
+                    (!feedItem.getBody().contains("Changed ") &&
+                    !feedItem.getBody().contains("Approved") &&
+                    !feedItem.getBody().contains("Rejected this") &&
+                    !feedItem.getBody().contains("Skipped the") &&
+                    !feedItem.getBody().contains("Removed the") &&
+                    !feedItem.getBody().contains("Edited this"))
+                ) {
+                    feedTime = " " + feedItem.getCreatedDate().toString();
+                    feedName = feedItem.getCreatedFullName() + feedTime + ":\n";
+                    feedBody = feedItem.getBody();
+                    feedBody = feedBody.replaceAll("^(.|\n)*<br /><br />", "");
+                    feedContent += feedName + feedBody + "\n\n";
+                    for (ItemUpdateReply reply : feedItem.getReplies()) {
+                        feedTime = " " + feedItem.getCreatedDate().toString();
+                        feedName = reply.getCreatedFullName() + feedTime + "\n";
+                        feedBody = reply.getBody();
+                        feedBody = feedBody.replaceAll(
+                            "^(.|\n)*<br /><br />", ""
+                        );
+                        feedContent += feedName + feedBody + "\n\n";
+                    }
+                }
+                String feedItemTitle = feedItem.getCreatedFullName() + " " +
+                    feedItem.getCreatedDate().toString() + ":";
 
+                boolean isCopy = false;
+                if (!feedContent.equals("") && getFeed() != null) {
+                    assert this.getFeed() != null : "There is no feed";
+                    for (ItemUpdate ticketFeed : this.getFeed()) {
+                        if (ticketFeed.getBody().contains(feedItemTitle)) {
+                            isCopy = true;
+                            counter++;
+                        }
+                    }
+                }
+                if (!isCopy)
+                    feed += feedContent;
             }
         }
-        return "0";
+        feed = feed.replaceAll("&quot;", "\"");
+        feed = feed.replaceAll("&#39;", "'");
+        feed = feed.replaceAll("<b>", "");
+        feed = feed.replaceAll("</b>", "");
+        debug.logNote(counter + " emails already located in feed.");
+        return feed;
     }
+
 
     private String findDescription() {
         return oneformTicket.getDescription();

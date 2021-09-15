@@ -56,14 +56,13 @@ public class SrrTicket extends DepartmentTicket {
      */
     @Override
     protected int findStatusId() {
-        return STATUS_CLOSED;
-        // String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
-        // if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
-        //     return STATUS_NEW;
-        // }
-        // else {
-        //     return STATUS_CLOSED;
-        // }
+         String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
+         if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+             return STATUS_NEW;
+         }
+         else {
+             return STATUS_CLOSED;
+         }
     }
 
     @Override

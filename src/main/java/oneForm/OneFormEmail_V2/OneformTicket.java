@@ -24,7 +24,6 @@ public class OneformTicket extends GeneralTicket {
 
 
     private final String DEFAULT_UID = "e578bb85-0041-e511-80d1-005056ac5ec6";
-    ArrayList<ItemUpdate> feed;
     private String agentName;
     private String agentUID;
 

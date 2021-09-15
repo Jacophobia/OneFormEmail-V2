@@ -407,9 +407,6 @@ public class ProcessRequest extends TDRunnable {
             json = gson.toJson(push.getTicket(appId, ticketId));
         DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
         ticket.setAttributes(new ArrayList<>());
-        ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
-        int x = departmentTicket.getAppId(); //FIXME: Delete this line
-        int y = ticket.getAppId(); //FIXME: Delete this line
 
         if (this.departmentTicket.getAppId() == ticket.getAppId()) {
             this.departmentTicket = ticket;
@@ -418,6 +415,7 @@ public class ProcessRequest extends TDRunnable {
                 "Department ticket retrieved, ID: " + departmentTicket.getId()
             );
         }
+        ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
     }
 
     /**
@@ -496,9 +494,16 @@ public class ProcessRequest extends TDRunnable {
      * while trying to connect to the Teamdynamix server.
      */
     private void makeFinalChanges() throws TDException {
-        if (departmentTicket != null && !departmentTicket.isRetrieved()) {
-            this.addAttachments();
-            oneformTicket.setDepartmentId(departmentTicket.getId());
+        if (departmentTicket != null) {
+            if (!departmentTicket.isRetrieved()) {
+                this.addAttachments();
+                oneformTicket.setDepartmentId(departmentTicket.getId());
+            }
+            if (departmentTicket.createdTicket != null) {
+                departmentTicket.setRetrieved(true);
+            }
+            uploadTicket(departmentTicket);
+
         }
         if (andonTicket != null)
             oneformTicket.setAndonId(andonTicket.getId());

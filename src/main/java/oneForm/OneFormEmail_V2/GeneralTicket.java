@@ -2,10 +2,12 @@ package oneForm.OneFormEmail_V2;
 
 import td.api.CustomAttribute;
 import td.api.Exceptions.TDException;
+import td.api.ItemUpdate;
 import td.api.Logging.History;
 import td.api.Ticket;
 
 import java.util.*;
+
 
 public abstract class GeneralTicket extends Ticket {
     protected LoggingSupervisor debug;
@@ -14,6 +16,7 @@ public abstract class GeneralTicket extends Ticket {
     protected Map<Integer, String> attributeChoiceText = new HashMap<>();
     protected int applicationID = 0;
     protected boolean retrieved = false;
+    protected ArrayList<ItemUpdate> feed;
 
     public GeneralTicket(History history) {
         super();
@@ -118,6 +121,10 @@ public abstract class GeneralTicket extends Ticket {
         assert ticketAttributes != null :
             "ticketAttributes has not been initialized";
         return ticketAttributes.containsKey(attributeID);
+    }
+
+    public ArrayList<ItemUpdate> getFeed() {
+        return this.feed;
     }
 
     public void setCreatedTicket(Ticket createdTicket) {
