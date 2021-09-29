@@ -60,23 +60,9 @@ public class AdmissionsTicket extends DepartmentTicket {
     protected void setDepartmentSpecificAttributes() {
         if (oneformTicket.containsAttribute(ONEFORM_OVERRIDE_ID))
             this.addCustomAttribute(OVERRIDE_ID, findOverrideEmailID());
-        this.addCustomAttribute(TAG_ID, findTagValue());
-        this.addCustomAttribute(
-            ONE_FORM_TICKETID_TAG,
-            String.valueOf(oneformTicket.getId())
-        );
-        this.addCustomAttribute(
-            BSC_AGENT_NAME,
-            oneformTicket.getAgentName()
-        );
-        this.addCustomAttribute(SENT_TO_LEVEL_2, findEscalatedValue());
     }
 
-    private String findTagValue() {
-        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
-    }
-
-    private String findEscalatedValue() {
+    protected String findEscalatedValue() {
         String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
         if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
             return SENT_TO_LEVEL_2_YES;
@@ -89,7 +75,7 @@ public class AdmissionsTicket extends DepartmentTicket {
     private String findOverrideEmailID() {
         assert oneformTicket.containsAttribute(ONEFORM_OVERRIDE_ID) :
             "The oneform ticket does not contain the override attribute";
-        switch(this.getCustomAttribute(ONEFORM_OVERRIDE_ID)) {
+        switch(oneformTicket.getCustomAttribute(ONEFORM_OVERRIDE_ID)) {
             case ONEFORM_OVERRIDE_YES:
                 return OVERRIDE_YES;
             case ONEFORM_OVERRIDE_NO:
@@ -106,5 +92,25 @@ public class AdmissionsTicket extends DepartmentTicket {
     @Override
     protected int findTicketFeedID() {
         return 11516;
+    }
+
+    @Override
+    protected int findOneformTagId() {
+        return TAG_ID;
+    }
+
+    @Override
+    protected int findOneformTicketIdId() {
+        return ONE_FORM_TICKETID_TAG;
+    }
+
+    @Override
+    protected int findBSCAgentNameId() {
+        return BSC_AGENT_NAME;
+    }
+
+    @Override
+    protected int findSentToLevel2Id() {
+        return SENT_TO_LEVEL_2;
     }
 }

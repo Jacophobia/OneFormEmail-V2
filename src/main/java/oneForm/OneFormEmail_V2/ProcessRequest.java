@@ -140,7 +140,7 @@ public class ProcessRequest extends TDRunnable {
             FaultTDExceptionMessage exceptionMessage =
                 TDExceptionMessageFactory.getFaultTDExceptionMessage(exception);
             debug.logError(
-                oneformTicket.getId() + "\n" + exceptionMessage.createMessage()
+                oneFormTicketID + "\n" + exceptionMessage.createMessage()
             );
             debug.sendErrorReport();
             throw new TDException(exceptionMessage, debug.getHistory());
@@ -182,8 +182,7 @@ public class ProcessRequest extends TDRunnable {
                     Integer.parseInt(
                         oneformTicket.getCustomAttribute(ONEFORM_DEPT_TICKET_ID)
                     ),
-                    departmentTicket.getAppId(),
-                    departmentTicket.getClass()
+                    departmentTicket.getAppId()
                 );
             }
             tickets.add(departmentTicket);
@@ -388,34 +387,34 @@ public class ProcessRequest extends TDRunnable {
 
     /**
      * This method is in charge of retrieving the department ticket,
-     * deserializing it, then re-serializing it as an inherited object of
-     * the DepartmentTicket class.
+     * deserializing it, then re-serializing it as an inherited object
+     * of the DepartmentTicket class.
      * @param ticketId The ticket ID of the department ticket.
      * @param appId The Application ID of the department ticket.
-     * @param ticketClass which class we want to make the department
-     *                    ticket.
+     *
      * @throws TDException if the api is unsuccessful in retrieving the
      * department ticket, we throw a TDException.
      */
-    private void retrieveDepartmentTicket(int ticketId, int appId,
-            Class<?> ticketClass) throws TDException {
-        Gson gson = new Gson();
-        String json;
-        if (!Settings.sandbox)
-            json = gson.toJson(pull.getTicket(appId, ticketId));
-        else
-            json = gson.toJson(push.getTicket(appId, ticketId));
-        DepartmentTicket ticket = gson.fromJson(json, (Type) ticketClass);
-        ticket.setAttributes(new ArrayList<>());
+    private void retrieveDepartmentTicket(int ticketId, int appId)
+            throws TDException {
 
-        if (this.departmentTicket.getAppId() == ticket.getAppId()) {
-            this.departmentTicket = ticket;
-            this.departmentTicket.setRetrieved(true);
-            debug.logNote(
-                "Department ticket retrieved, ID: " + departmentTicket.getId()
-            );
+        assert oneformTicket != null :
+            "The oneform ticket has not been initialized.";
+
+        Ticket retrievedTicket;
+        if (!Settings.sandbox)
+            retrievedTicket = pull.getTicket(appId, ticketId);
+        else
+            retrievedTicket = push.getTicket(appId, ticketId);
+
+        if (retrievedTicket.getAppId() == departmentTicket.getAppId()) {
+            departmentTicket.setCreatedTicket(retrievedTicket);
+            departmentTicket.setAttributes(new ArrayList<>());
+            departmentTicket.setRetrieved(true);
+            debug.log("Department Ticket retrieved");
         }
-        ticket.initializeTicket(debug.getHistory(), this.oneformTicket);
+        else
+            debug.log("App Id Conflict, creating new ticket by default");
     }
 
     /**
@@ -497,11 +496,9 @@ public class ProcessRequest extends TDRunnable {
         if (departmentTicket != null) {
             if (!departmentTicket.isRetrieved()) {
                 this.addAttachments();
-                oneformTicket.setDepartmentId(departmentTicket.getId());
             }
-            if (departmentTicket.createdTicket != null) {
-                departmentTicket.setRetrieved(true);
-            }
+            oneformTicket.setDepartmentId(departmentTicket.getId());
+
             uploadTicket(departmentTicket);
 
         }
@@ -524,10 +521,9 @@ public class ProcessRequest extends TDRunnable {
      */
     private void uploadTicket(GeneralTicket ticket) throws TDException {
         ticket.prepareTicketUpload();
-
         Ticket uploadedTicket = null;
         try {
-            if (!ticket.isRetrieved()) {
+            if (!ticket.isRetrieved() && !ticket.wasCreated()) {
                 uploadedTicket = push.createTicket(ticket.getAppId(), ticket);
                 debug.log(ticket.getClass().getSimpleName() + " created.");
             }

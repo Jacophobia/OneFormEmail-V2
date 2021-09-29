@@ -11,7 +11,7 @@ import java.util.*;
 
 public abstract class GeneralTicket extends Ticket {
     protected LoggingSupervisor debug;
-    protected Ticket createdTicket;
+    protected Ticket createdTicket = null;
     protected Map<Integer, String> ticketAttributes = new HashMap<>();
     protected Map<Integer, String> attributeChoiceText = new HashMap<>();
     protected int applicationID = 0;
@@ -25,6 +25,10 @@ public abstract class GeneralTicket extends Ticket {
 
     public boolean isRetrieved() {
         return retrieved;
+    }
+
+    public boolean wasCreated() {
+        return createdTicket != null;
     }
 
     public void setRetrieved(boolean retrieved) {
@@ -41,14 +45,6 @@ public abstract class GeneralTicket extends Ticket {
             return super.getAppId();
         }
         return applicationID;
-    }
-
-    @Override
-    public int getId() {
-        if (this.createdTicket != null) {
-            return createdTicket.getId();
-        }
-        return super.getId();
     }
 
     public void initializeTicket(History history) {
@@ -128,7 +124,17 @@ public abstract class GeneralTicket extends Ticket {
     }
 
     public void setCreatedTicket(Ticket createdTicket) {
+        assert createdTicket.getAppId() == this.getAppId() :
+            "The created ticket does not match the values of the ticket";
         this.createdTicket = createdTicket;
+    }
+
+    @Override
+    public int getId() {
+        if (this.createdTicket != null) {
+            return createdTicket.getId();
+        }
+        return super.getId();
     }
 
     /**

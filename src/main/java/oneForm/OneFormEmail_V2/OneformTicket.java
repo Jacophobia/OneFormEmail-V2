@@ -20,6 +20,7 @@ public class OneformTicket extends GeneralTicket {
     private final int DEPT_TICKET_ID = 11452;
     private final int ONEFORM_TAG_ID = 10333;
     private final int STATUS_NEW = 322;
+    private final int STATUS_CLOSED = 326;
     private boolean isValidRequest = true;
 
 
@@ -49,6 +50,7 @@ public class OneformTicket extends GeneralTicket {
 
         this.feed = pull.getTicketFeedEntries(this.getAppId(), this.getId());
         boolean found = false;
+        boolean first = true;
         String name;
         for (ItemUpdate feedItem : feed) {
             name = feedItem.getCreatedFullName();
@@ -58,17 +60,22 @@ public class OneformTicket extends GeneralTicket {
                 !name.equals("Ipaas Automation") &&
                 !name.equals("Automation Robot") &&
                 !name.equals("BYUI Ticketing")   &&
-                !name.equals(getRequestorName()) &&
                 !found
             ) {
-                this.agentName = feedItem.getCreatedFullName();
-                this.agentUID = feedItem.getCreatedUid();
-                found = true;
+                if (!name.equals(getRequestorName())) {
+                    this.agentName = feedItem.getCreatedFullName();
+                    this.agentUID = feedItem.getCreatedUid();
+                    found = true;
+                    if (first)
+                        this.setStatusId(STATUS_CLOSED);
+                }
+                else if (first)
+                    this.setStatusId(STATUS_NEW);
+                first = false;
             }
         }
-        if (this.feed.get(0).getCreatedFullName().equals(getRequestorName())) {
-            this.setStatusId(STATUS_NEW);
-        }
+
+
         if (this.agentName == null || this.agentName.isEmpty()) {
             debug.logWarning(
                 this.getClass(),
@@ -76,6 +83,7 @@ public class OneformTicket extends GeneralTicket {
                 "No agent name found, using Albus Dumbledore"
             );
             this.agentName = "Albus Dumbledore";
+            this.setStatusId(STATUS_CLOSED);
         }
         if (this.agentUID == null || this.agentUID.isEmpty()) {
             debug.logWarning(

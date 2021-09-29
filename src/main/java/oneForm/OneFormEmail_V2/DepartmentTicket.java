@@ -1,10 +1,8 @@
 package oneForm.OneFormEmail_V2;
 
+import td.api.*;
 import td.api.Exceptions.TDException;
-import td.api.ItemUpdate;
-import td.api.ItemUpdateReply;
 import td.api.Logging.History;
-import td.api.TeamDynamix;
 
 import static oneForm.OneFormEmail_V2.ProcessRequest.pull;
 import static oneForm.OneFormEmail_V2.ProcessRequest.push;
@@ -55,6 +53,17 @@ public abstract class DepartmentTicket extends GeneralTicket {
     }
 
     @Override
+    public int getId() {
+        if (this.createdTicket != null)
+            return createdTicket.getId();
+        return super.getId();
+    }
+
+    public boolean isRetrieved() {
+        return retrieved;
+    }
+
+    @Override
     public void prepareTicketUpload() throws TDException {
         setRequiredAttributes();
         setAdditionalAttributes();
@@ -89,6 +98,19 @@ public abstract class DepartmentTicket extends GeneralTicket {
         setLocationId(findLocationId());
         // ticket feed updater
         this.addCustomAttribute(findTicketFeedID(), findTicketFeedContent());
+        this.addCustomAttribute(
+            findOneformTagId(),
+            oneformTicket.getAttributeText(ONEFORM_TAG_ID)
+        );
+        this.addCustomAttribute(
+            findOneformTicketIdId(),
+            String.valueOf(oneformTicket.getId())
+        );
+        this.addCustomAttribute(
+            findBSCAgentNameId(),
+            oneformTicket.getAgentName()
+        );
+        this.addCustomAttribute(findSentToLevel2Id(), findEscalatedValue());
     }
 
     //
@@ -156,10 +178,10 @@ public abstract class DepartmentTicket extends GeneralTicket {
             return "\n";
         }
         String name;
-        String feedContent = "";
+        String feedContent;
         String feed = "\n";
-        String feedName = "";
-        String feedBody = "";
+        String feedName;
+        String feedBody;
         String feedTime;
         int counter = 0;
         for (ItemUpdate feedItem : oneformTicket.getFeed()) {
@@ -174,46 +196,47 @@ public abstract class DepartmentTicket extends GeneralTicket {
                 !name.equals("BYUI Ticketing")
             ) {
                 feedContent = "";
+                String feedItemTitle = "";
                 if (feedItem.getBody().contains("<br /><br />") ||
                     (!feedItem.getBody().contains("Changed ") &&
-                    !feedItem.getBody().contains("Approved") &&
-                    !feedItem.getBody().contains("Rejected this") &&
-                    !feedItem.getBody().contains("Skipped the") &&
-                    !feedItem.getBody().contains("Removed the") &&
-                    !feedItem.getBody().contains("Edited this"))
+                        !feedItem.getBody().contains("Approved") &&
+                        !feedItem.getBody().contains("Rejected this") &&
+                        !feedItem.getBody().contains("Skipped the") &&
+                        !feedItem.getBody().contains("Removed the") &&
+                        !feedItem.getBody().contains("Edited this"))
                 ) {
-                    feedTime = " " + feedItem.getCreatedDate().toString();
-                    feedName = feedItem.getCreatedFullName() + feedTime + ":\n";
+                    feedTime = " " + feedItem.getCreatedDate().toString() + ":";
+                    feedName = feedItem.getCreatedFullName() + feedTime + "\n";
                     feedBody = feedItem.getBody();
-                    feedBody = feedBody.replaceAll("^(.|\n)*<br /><br />", "");
+//                    feedBody = feedBody.replaceAll("^(.|\n)*<br /><br />", "");
                     feedContent += feedName + feedBody + "\n\n";
                     for (ItemUpdateReply reply : feedItem.getReplies()) {
-                        feedTime = " " + feedItem.getCreatedDate().toString();
+                        feedTime = " " + reply.getCreatedDate().toString() +":";
                         feedName = reply.getCreatedFullName() + feedTime + "\n";
                         feedBody = reply.getBody();
-                        feedBody = feedBody.replaceAll(
-                            "^(.|\n)*<br /><br />", ""
-                        );
                         feedContent += feedName + feedBody + "\n\n";
                     }
+                    feedItemTitle = feedName + feedTime;
                 }
-                String feedItemTitle = feedItem.getCreatedFullName() + " " +
-                    feedItem.getCreatedDate().toString() + ":";
 
-                boolean isCopy = false;
-                if (!feedContent.equals("") && getFeed() != null) {
-                    assert this.getFeed() != null : "There is no feed";
-                    for (ItemUpdate ticketFeed : this.getFeed()) {
-                        if (ticketFeed.getBody().contains(feedItemTitle)) {
-                            isCopy = true;
-                            counter++;
+                if (!feedItemTitle.equals("")) {
+                    boolean isCopy = false;
+                    if (!feedContent.equals("") && getFeed() != null) {
+                        assert this.getFeed() != null : "There is no feed";
+                        for (ItemUpdate ticketFeed : this.getFeed()) {
+                            if (ticketFeed.getBody().contains(feedItemTitle)) {
+                                isCopy = true;
+                                counter++;
+                            }
                         }
                     }
+                    if (!isCopy)
+                        feed += feedContent;
                 }
-                if (!isCopy)
-                    feed += feedContent;
             }
         }
+        feed = feed.replaceAll("<br/>", "\n");
+        feed = feed.replaceAll("<br />", "\n");
         feed = feed.replaceAll("&quot;", "\"");
         feed = feed.replaceAll("&#39;", "'");
         feed = feed.replaceAll("<b>", "");
@@ -235,6 +258,12 @@ public abstract class DepartmentTicket extends GeneralTicket {
         return EMAIL_SOURCE_ID;
     }
 
+    abstract protected int findOneformTagId();
+    abstract protected int findOneformTicketIdId();
+    abstract protected int findBSCAgentNameId();
+    abstract protected int findSentToLevel2Id();
+    abstract protected String findEscalatedValue();
+
     /**
      * Department Specific Attributes:
      * These attributes are not required to upload the ticket, but are
@@ -244,4 +273,37 @@ public abstract class DepartmentTicket extends GeneralTicket {
     abstract protected void setDepartmentSpecificAttributes();
     // TODO: Add all of the common custom attributes to the additional
     //  attributes method and use abstract find methods
+
+    @Override
+    public void setCreatedTicket(Ticket createdTicket) {
+        assert createdTicket.getAppId() == this.getAppId() :
+            "The created ticket does not match the values of the ticket";
+        this.createdTicket = createdTicket;
+        this.setTypeId(createdTicket.getTypeId());
+        this.setTitle(createdTicket.getTitle());
+        this.setAccountId(createdTicket.getAccountId());
+        this.setStatusId(createdTicket.getStatusId());
+        this.setPriorityId(createdTicket.getPriorityId());
+        this.setRequestorUid(createdTicket.getRequestorUid());
+        this.setFormId(createdTicket.getFormId());
+        this.setDescription(createdTicket.getDescription());
+        this.setSourceId(createdTicket.getSourceId());
+        this.setImpactId(createdTicket.getImpactId());
+        this.setUrgencyId(createdTicket.getUrgencyId());
+        this.setEstimatedMinutes(createdTicket.getEstimatedMinutes());
+        this.setStartDate(createdTicket.getStartDate());
+        this.setEndDate(createdTicket.getEndDate());
+        this.setResponsibleUid(createdTicket.getResponsibleUid());
+        this.setResponsibleGroupId(createdTicket.getResponsibleGroupId());
+        this.setTimeBudget(createdTicket.getTimeBudget());
+        this.setExpensesBudget(createdTicket.getExpensesBudget());
+        this.setLocationId(createdTicket.getLocationId());
+        this.setLocationRoomId(createdTicket.getLocationRoomId());
+        this.setServiceId(createdTicket.getServiceId());
+        this.setArticleId(createdTicket.getArticleId());
+        debug.logNote(
+            "Updated the " + this.getClass().getSimpleName() + " with info " +
+                "from the retrieved ticket."
+        );
+    }
 }

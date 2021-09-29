@@ -40,16 +40,20 @@ class CountTicket extends GeneralTicket {
         this.oneformTicket = oneformTicket;
         this.setFormId(FORM_ID);
         this.setTypeId(TYPE_ID);
-        this.setTitle("Email Count Form");
+        this.setTitle("Individual Agent Daily Data - Email");
         this.setAccountId(ACCOUNT_ID);
         this.setStatusId(STATUS_ID);
         this.setPriorityId(PRIORITY_ID);
         this.setRequestorUid(oneformTicket.getAgentUID());
-
-        this.addCustomAttribute(
-            DATA_DATE,
-            oneformTicket.getFeed().get(0).getCreatedDate().toString()
-        );
+        if (oneformTicket.getFeed().size() > 0)
+            this.addCustomAttribute(
+                DATA_DATE,
+                oneformTicket.getFeed().get(0).getCreatedDate().toString()
+            );
+        else
+            this.addCustomAttribute(
+                DATA_DATE, oneformTicket.getCreatedDate().toString()
+            );
     }
     public void incrementCount(){
         switch (ACTION) {

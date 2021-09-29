@@ -12,7 +12,7 @@ public class AccountingTicket extends DepartmentTicket {
 
     private final int    TAG_ID = 10944;
 
-    private final int    ONE_FORM_TICKETID_TAG = 11013;
+    private final int ONE_FORM_TICKET_ID_ID = 11013;
 
     private final int    BSC_AGENT_NAME = 5514;
 
@@ -47,24 +47,9 @@ public class AccountingTicket extends DepartmentTicket {
     }
 
     @Override
-    protected void setDepartmentSpecificAttributes() {
-        this.addCustomAttribute(TAG_ID, findTagValue());
-        this.addCustomAttribute(
-            ONE_FORM_TICKETID_TAG,
-            String.valueOf(oneformTicket.getId())
-        );
-        this.addCustomAttribute(
-            BSC_AGENT_NAME,
-            oneformTicket.getAgentName()
-        );
-        this.addCustomAttribute(SENT_TO_LEVEL_2, findEscalatedValue());
-    }
+    protected void setDepartmentSpecificAttributes() {}
 
-    private String findTagValue() {
-        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
-    }
-
-    private String findEscalatedValue() {
+    protected String findEscalatedValue() {
         String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
         if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
             return SENT_TO_LEVEL_2_YES;
@@ -77,6 +62,26 @@ public class AccountingTicket extends DepartmentTicket {
     @Override
     protected int findTicketFeedID() {
         return 11515;
+    }
+
+    @Override
+    protected int findOneformTagId() {
+        return TAG_ID;
+    }
+
+    @Override
+    protected int findOneformTicketIdId() {
+        return ONE_FORM_TICKET_ID_ID;
+    }
+
+    @Override
+    protected int findBSCAgentNameId() {
+        return BSC_AGENT_NAME;
+    }
+
+    @Override
+    protected int findSentToLevel2Id() {
+        return SENT_TO_LEVEL_2;
     }
 
 }

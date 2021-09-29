@@ -11,6 +11,9 @@ public class SrrTicket extends DepartmentTicket {
     private final int STATUS_NEW = 420;
 
     private final int TAG_ID = 10948;
+    private final String TRANSFER_EVAL_STATUS = "36879";
+    private final String TRANSFER_EVAL_HOW_TO = "36878";
+    private final String TRANSFER_EVAL_RESULTS = "36880";
 
     private final int    ONLINE_OR_CAMPUS_ID = 9829;
     private final String ON_CAMPUS_ID = "30087";
@@ -56,13 +59,24 @@ public class SrrTicket extends DepartmentTicket {
      */
     @Override
     protected int findStatusId() {
-         String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
-         if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
-             return STATUS_NEW;
-         }
-         else {
-             return STATUS_CLOSED;
-         }
+        String oneformTag;
+        if (oneformTicket.containsAttribute(ONEFORM_TAG_ID)) {
+            oneformTag = oneformTicket.getCustomAttribute(ONEFORM_TAG_ID);
+            if (
+                !oneformTag.equals(TRANSFER_EVAL_HOW_TO) &&
+                !oneformTag.equals(TRANSFER_EVAL_RESULTS) &&
+                !oneformTag.equals(TRANSFER_EVAL_STATUS)
+            ) {
+                return STATUS_CLOSED;
+            }
+        }
+        String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
+        if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
+            return STATUS_NEW;
+        }
+        else {
+            return STATUS_CLOSED;
+        }
     }
 
     @Override
@@ -76,23 +90,9 @@ public class SrrTicket extends DepartmentTicket {
             this.addCustomAttribute(ONLINE_OR_CAMPUS_ID, findOnlineOrCampus());
             this.addCustomAttribute(ONLINE_FILLED_ID, findOnlineFilled());
         }
-        this.addCustomAttribute(TAG_ID, findTagValue());
-        this.addCustomAttribute(
-            ONE_FORM_TICKETID_TAG,
-            String.valueOf(oneformTicket.getId())
-        );
-        this.addCustomAttribute(
-            BSC_AGENT_NAME,
-            oneformTicket.getAgentName()
-        );
-        this.addCustomAttribute(SENT_TO_LEVEL_2, findEscalatedValue());
     }
 
-    private String findTagValue() {
-        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
-    }
-
-    private String findEscalatedValue() {
+    protected String findEscalatedValue() {
         String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
         if (action.equals(EMAIL_ACTIONS_CHOICE_ESCALATE)) {
             return SENT_TO_LEVEL_2_YES;
@@ -131,5 +131,25 @@ public class SrrTicket extends DepartmentTicket {
     @Override
     protected int findTicketFeedID() {
         return 11518;
+    }
+
+    @Override
+    protected int findOneformTagId() {
+        return TAG_ID;
+    }
+
+    @Override
+    protected int findOneformTicketIdId() {
+        return ONE_FORM_TICKETID_TAG;
+    }
+
+    @Override
+    protected int findBSCAgentNameId() {
+        return BSC_AGENT_NAME;
+    }
+
+    @Override
+    protected int findSentToLevel2Id() {
+        return SENT_TO_LEVEL_2;
     }
 }

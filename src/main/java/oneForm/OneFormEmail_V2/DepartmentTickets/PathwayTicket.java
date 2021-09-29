@@ -312,23 +312,10 @@ public class PathwayTicket extends DepartmentTicket {
     }
 
     @Override
-    protected void setDepartmentSpecificAttributes() {
-        this.addCustomAttribute(findTagId(), findTagValue());
-        this.addCustomAttribute(
-            findOneFormTicketIdTag(),
-            String.valueOf(oneformTicket.getId())
-        );
-        this.addCustomAttribute(
-            findBscAgentNameId(),
-            oneformTicket.getAgentName()
-        );
-        this.addCustomAttribute(
-            findSentToLevelTwoId(),
-            findEscalatedValue()
-        );
-    }
+    protected void setDepartmentSpecificAttributes() {}
 
-    private int findTagId() {
+    @Override
+    protected int findOneformTagId() {
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
                 return ACCOUNTING_TAG_ID;
@@ -349,11 +336,8 @@ public class PathwayTicket extends DepartmentTicket {
         }
     }
 
-    private String findTagValue() {
-        return oneformTicket.getAttributeText(ONEFORM_TAG_ID);
-    }
-
-    private int findOneFormTicketIdTag() {
+    @Override
+    protected int findOneformTicketIdId() {
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
                 return ACCOUNTING_ONE_FORM_TICKETID_TAG;
@@ -373,8 +357,9 @@ public class PathwayTicket extends DepartmentTicket {
                 return BYUI_TICKETS_ONE_FORM_TICKETID_TAG;
         }
     }
-    // TODO: Finish these
-    private int findBscAgentNameId() {
+
+    @Override
+    protected int findBSCAgentNameId() {
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
                 return ACCOUNTING_BSC_AGENT_NAME;
@@ -395,7 +380,8 @@ public class PathwayTicket extends DepartmentTicket {
         }
     }
 
-    private int findSentToLevelTwoId() {
+    @Override
+    protected int findSentToLevel2Id() {
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
                 return ACCOUNTING_SENT_TO_LEVEL_2;
@@ -416,7 +402,7 @@ public class PathwayTicket extends DepartmentTicket {
         }
     }
 
-    private String findEscalatedValue() {
+    protected String findEscalatedValue() {
         String action = oneformTicket.getCustomAttribute(EMAIL_ACTIONS_ATTR);
         switch (applicationID) {
             case ACCOUNTING_APP_ID:
