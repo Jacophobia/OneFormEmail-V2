@@ -4,25 +4,24 @@ This is version two of the Email OneForm.
 If you are just editing the OneForm-Email for the first time, please read the 
 [Setup Guide](SETUP_GUIDE.md).
 
+## [RequestCollector](src/main/java/oneForm/OneFormEmail_V2/RequestCollector.java)
+    This class contains the endpoints which trigger the program to run. This is
+    a listener program which is triggered when a request comes in. These 
+    requests will come in from teamdynamix when the Email One Form Choices v2 is
+    run. The requests contain the oneform ticket ID as a parameter. There are 
+    three main endpoints. One for tickets that need to be escalated, one for 
+    tickets that have been resolved, and one for spam. Each will be handled 
+    differently by the rest of the program. 
+
 ## [RequestManager](src/main/java/oneForm/OneFormEmail_V2/RequestManager.java)
-    Description:
     This class will wait for a request to be made, and when one is, it will 
     launch a thread which runs the tasks contained in ProcessRequest.
 
-    extends TDThreadManager
-    Private:
-    countTicketSemaphore: Semaphore
-    andonTicektSemaphore: Semaphore
-    Public:
-    RequestManager()
-    addServiceRequest(:ProcessRequest, :History, :String): void
-
 ## [ProcessRequest](src/main/java/oneForm/OneFormEmail_V2/ProcessRequest.java)
-    Description:
-    This class will handle each individual request from the threadmanager. When 
+    This class will handle each individual request from the threadmanager. When
     a request is sent to the program, an object of this class will be created 
     which processes that request and organizes the flow of the program. This 
-    class will call the other programs to create a department, andon, and count 
+    class will call the other programs to create a department, andon, and count
     ticket using the information contained in a oneform ticket that it will 
     obtain. The program will start by creating a OneFormTicket object. It will 
     determine, based on the BSC office radio option selected in the OneForm, 
@@ -33,20 +32,8 @@ If you are just editing the OneForm-Email for the first time, please read the
     ArrayList of GeneralTickets. At the end of the program, the program will 
     loop through the tickets in the ArrayList and call the uploadTicket method 
     in each. 
-    
-    extends TDRunnable
-    Private:
-    ArrayList<Ticket> tickets
-    TeamDynamix api
-    LoggingManager history
-
-    Public:
-    executeTask(): void
-    createTickets(ticketID): void
-    getDepartmentID(oneFormTicket): int
 
 ## [LoggingSupervisor](src/main/java/oneForm/OneFormEmail_V2/LoggingSupervisor.java)
-    Description:
     This is a class which simplifies the logging process. A single 
     LoggingSupervisor object will be created when the ProcessRequest object is 
     created. I recommend naming it something short and sweet like debug. This 
@@ -56,120 +43,51 @@ If you are just editing the OneForm-Email for the first time, please read the
     class or the name of the new method as the parameter. This will help with 
     debugging later because the printed history will contain location specific 
     information when debug mode is turned on. 
-    
-    Private:
-    current_class: class
-    current_method: String
-    history: History
 
-    Public:
-    log(:String)
-    log(:String, :Level)
-    setMethod(:String)
-    setClass(:class)
-
-## [ErrorTicket](src/main/java/oneForm/OneFormEmail_V2/ErrorTicket.java)
-    Description:
+## [ErrorTicket](src/main/java/oneForm/OneFormEmail_V2/ErrorTicket.java) extends Ticket
     This ticket is used to log errors since the papertrail only goes back a few
     days. Errors will be logged on these tickets and will appear on the report:
     Oneform Errors #19102. This will help us keep a record of all errors.
-    
-    extends Ticket 
-    Public:
-    ErrorTicket(:String, :String)
-    ErrorTicket(:String)
-    logError(:String)
 
-## [*GeneralTicket*](src/main/java/oneForm/OneFormEmail_V2/GeneralTicket.java)
-    Description:
+## [*GeneralTicket*](src/main/java/oneForm/OneFormEmail_V2/GeneralTicket.java) extends Ticket
     This is the basic model for all tickets that will be created in this 
     program. It contains some abstract methods which need to be overriden to 
     maintain functionality. 
-    
-    extends Ticket
-    Private:
-    attributes: Map<attribute_id, value>
-    
-    Public:
-    uploadTicket(): void
 
-### [AndonTicket](src/main/java/oneForm/OneFormEmail_V2/AndonTicket.java)
-    Description:
+### [AndonTicket](src/main/java/oneForm/OneFormEmail_V2/AndonTicket.java) extends GeneralTicket
     This ticket is created when the andon cord option is selected by the agent.
-    
-    extends GeneralTicket
-    Public:
-    Private:
 
-### [CountTicket](src/main/java/oneForm/OneFormEmail_V2/CountTicket.java)
-    Description:
+### [CountTicket](src/main/java/oneForm/OneFormEmail_V2/CountTicket.java) extends GeneralTicket
     Creates a count ticket for the count programs to keep track of. 
-    
-    extends GeneralTicket
-    Public:
-    Private:
 
-### [*DepartmentTicket*](src/main/java/oneForm/OneFormEmail_V2/DepartmentTicket.java)
-    Description:
+### [*DepartmentTicket*](src/main/java/oneForm/OneFormEmail_V2/DepartmentTicket.java) extends GeneralTicket
     An abstract generic department ticket containing all of the attributes and methods 
     used by the different department tickets. 
-    
-    extends GeneralTicket
-    Public:
-    Private:
 
-#### [PathwayTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/PathwayTicket.java)
-    Description:
+#### [PathwayTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/PathwayTicket.java) extends DepartmentTicket
     Creates a ticket for Pathway Worldwide and Pathway Connect contacts. 
-    
-    extends DepartmentTicket
-    Public:
-    Private:
 
-#### [ByuiTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/ByuiTicket.java)
-    Description:
+#### [ByuiTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/ByuiTicket.java) extends DepartmentTicket
     Creates ticket for the SRR department.
-    
-    extends DepartmentTicket
-    Public:
-    Private:
 
-#### [AccountingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AccountingTicket.java)
-    Description:
+#### [AccountingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AccountingTicket.java) extends DepartmentTicket
     Creates ticket for the SRR department.
-    
-    extends DepartmentTicket
-    Public:
-    Private:
 
-#### [AdmissionsTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdmissionsTicket.java)
-    Description:
+#### [AdmissionsTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdmissionsTicket.java) extends DepartmentTicket
     Creates ticket for the SRR department.
-    
-    extends DepartmentTicket
-    Public:
-    Private:
 
-#### [AdvisingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdvisingTicket.java)
-    Description:
+#### [AdvisingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdvisingTicket.java) extends DepartmentTicket
     Creates ticket for the SRR department.
-    
-    extends DepartmentTicket
-    Public:
-    Private:
 
-#### [FinancialAidTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/FinancialAidTicket.java)
-    Description:
+#### [FinancialAidTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/FinancialAidTicket.java) extends DepartmentTicket
     Creates ticket for the SRR department.
-    
-    extends DepartmentTicket
-    Public:
-    Private:
 
-#### [SrrTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/SrrTicket.java)
-    Description:
+#### [SrrTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/SrrTicket.java) extends DepartmentTicket
     Creates ticket for the SRR department.
-    
-    extends DepartmentTicket
-    Public:
-    Private:
+
+## [Settings](src/main/java/oneForm/OneFormEmail_V2/Settings.java)
+    The program is designed to be run with different settings depending on the 
+    circumstances at the time you run the program. For example, if you are 
+    testing, you can put the program into sandbox mode and you will not need to
+    delete department tickets that the program makes since they will all be sent
+    to the Teamdynamix Sandbox server. 
