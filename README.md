@@ -68,22 +68,22 @@ If you are just editing the OneForm-Email for the first time, please read the
     Creates a ticket for Pathway Worldwide and Pathway Connect contacts. 
 
 #### [ByuiTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/ByuiTicket.java) extends DepartmentTicket
-    Creates ticket for the SRR department.
+    Creates ticket for the general issues.
 
 #### [AccountingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AccountingTicket.java) extends DepartmentTicket
-    Creates ticket for the SRR department.
+    Creates ticket for the Accounting department.
 
 #### [AdmissionsTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdmissionsTicket.java) extends DepartmentTicket
-    Creates ticket for the SRR department.
+    Creates ticket for the Admissions department.
 
 #### [AdvisingTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/AdvisingTicket.java) extends DepartmentTicket
-    Creates ticket for the SRR department.
+    Creates ticket for the Advising department.
 
 #### [FinancialAidTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/FinancialAidTicket.java) extends DepartmentTicket
-    Creates ticket for the SRR department.
+    Creates ticket for the Financial Aid department.
 
 #### [SrrTicket](src/main/java/oneForm/OneFormEmail_V2/DepartmentTickets/SrrTicket.java) extends DepartmentTicket
-    Creates ticket for the SRR department.
+    Creates ticket for the Student Records and Resources department.
 
 ## [Settings](src/main/java/oneForm/OneFormEmail_V2/Settings.java)
     The program is designed to be run with different settings depending on the 
