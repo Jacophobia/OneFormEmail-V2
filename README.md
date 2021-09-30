@@ -1,8 +1,7 @@
 # OneFormEmail-V2
-This is version two of the Email OneForm.
-
-If you are just editing the OneForm-Email for the first time, please read the 
-[Setup Guide](SETUP_GUIDE.md).
+This is version two of the Email OneForm, a program used to record historical 
+data on incoming emails and to ensure that unhandled incidents make it to the 
+correct department for processing. 
 
 ## [RequestCollector](src/main/java/oneForm/OneFormEmail_V2/RequestCollector.java)
     This class contains the endpoints which trigger the program to run. This is
